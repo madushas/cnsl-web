@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
+/* Global Tailwind v4 (css-first) theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* CNSL Brand Colors - Aligned with Guide.md */
+  --background: #F8F9FA; /* Light gray background as per guide */
+  --foreground: #212529; /* Dark gray text as per guide */
+  
+  /* Card and surface colors */
+  --card: #FFFFFF; /* Pure white */
+  --card-foreground: #212529; /* Dark gray text */
+  --popover: #FFFFFF; /* Pure white */
+  --popover-foreground: #212529; /* Dark gray text */
+  
+  /* CNSL Primary: Bright Blue as per guide.md */
+  --primary: #0077B6; /* Guide.md primary blue */
+  --primary-foreground: #FFFFFF; /* White text on primary */
+  
+  /* CNSL Secondary: Lighter Blue as per guide.md */
+  --secondary: #00B4D8; /* Guide.md secondary blue */
+  --secondary-foreground: #FFFFFF; /* White text on secondary */
+  
+  /* Muted colors for subtle elements */
+  --muted: #E9ECEF; /* Light gray for muted backgrounds */
+  --muted-foreground: #6C757D; /* Medium gray for muted text */
+  
+  /* Accent: Light blue as per guide.md */
+  --accent: #90E0EF; /* Guide.md accent light blue */
+  --accent-foreground: #212529; /* Dark text on accent */
+  
+  /* System colors */
+  --destructive: #DC3545; /* Standard red for errors */
+  --destructive-foreground: #FFFFFF; /* White text on destructive */
+  
+  /* Border and input colors */
+  --border: #DEE2E6; /* Light gray border */
+  --input: #FFFFFF; /* White input background */
+  --ring: #0077B6; /* Primary blue for focus ring */
+  
+  /* Chart colors - Blue gradient as per guide.md */
+  --chart-1: #0077B6;
+  --chart-2: #00B4D8;
+  --chart-3: #90E0EF;
+  --chart-4: #CAF0F8;
+  --chart-5: #ADE8F4;
+  
+  /* Sidebar colors */
+  --sidebar: #F8F9FA;
+  --sidebar-foreground: #212529;
+  --sidebar-primary: #0077B6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #90E0EF;
+  --sidebar-accent-foreground: #212529;
+  --sidebar-border: #DEE2E6;
+  --sidebar-ring: #0077B6;
+  
+  /* Typography - Inter with Roboto fallback as per guide.md */
+  --font-sans: var(--font-inter), var(--font-roboto), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Merriweather', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* Border radius */
+  --radius: 0.5rem;
+  
+  /* Shadows */
+  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.05);
+  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.05);
+  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 1px 2px -2px hsl(0 0% 10.1961% / 0.10);
+  --shadow: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 1px 2px -2px hsl(0 0% 10.1961% / 0.10);
+  --shadow-md: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 2px 4px -2px hsl(0 0% 10.1961% / 0.10);
+  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 4px 6px -2px hsl(0 0% 10.1961% / 0.10);
+  --shadow-xl: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 8px 10px -2px hsl(0 0% 10.1961% / 0.10);
+  --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.25);
+  
+  /* Spacing */
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base styles */
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility - Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Cloud-native gradient backgrounds */
+.bg-gradient-cnsl {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, var(--chart-5) 0%, #F0F9FF 100%);
+}
+
+/* Animation classes for intersection observer */
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-fade-in.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-slide-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-slide-up.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Utility overrides to ensure theme colors are applied */
+.bg-primary { background-color: var(--primary) !important; }
+.bg-secondary { background-color: var(--secondary) !important; }
+.bg-accent { background-color: var(--accent) !important; }
+.bg-muted { background-color: var(--muted) !important; }
+.bg-card { background-color: var(--card) !important; }
+.bg-background { background-color: var(--background) !important; }
+.bg-destructive { background-color: var(--destructive) !important; }
+
+.text-primary { color: var(--primary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.text-accent { color: var(--accent) !important; }
+.text-muted-foreground { color: var(--muted-foreground) !important; }
+.text-foreground { color: var(--foreground) !important; }
+.text-primary-foreground { color: var(--primary-foreground) !important; }
+.text-secondary-foreground { color: var(--secondary-foreground) !important; }
+.text-accent-foreground { color: var(--accent-foreground) !important; }
+.text-destructive { color: var(--destructive) !important; }
+.text-destructive-foreground { color: var(--destructive-foreground) !important; }
+
+.border-primary { border-color: var(--primary) !important; }
+.border-secondary { border-color: var(--secondary) !important; }
+.border-accent { border-color: var(--accent) !important; }
+.border-muted { border-color: var(--muted) !important; }
+.border-border { border-color: var(--border) !important; }
+.border-input { border-color: var(--input) !important; }
+.border-destructive { border-color: var(--destructive) !important; }
+
+/* Focus styles */
+.focus-visible\:ring-2:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
