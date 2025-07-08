@@ -210,10 +210,10 @@ export default async function EventDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {Array.from({ length: 6 }).fill(event.imageUrl).map((image, index) => (
+                  {Array.from({ length: 6 }).map((_, index) => (
                     <Image
                       key={index}
-                      src={image}
+                      src={event.gallery?.[index] || '/events/default.jpg'}
                       alt={`Gallery image ${index + 1}`}
                       width={300}
                       height={200}

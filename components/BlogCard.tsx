@@ -9,7 +9,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
 import { BlogPost } from "@/lib/types";
-import { imageConfig } from "@/lib/image-config";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Image from "next/image";

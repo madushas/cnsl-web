@@ -83,6 +83,7 @@ export interface DatabaseEvent {
   readonly createdAt?: string
   readonly updatedAt?: string
   readonly speakerDetails: Speaker[]
+  readonly gallery?: readonly string[] 
 }
 
 export interface Speaker {

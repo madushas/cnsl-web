@@ -82,7 +82,7 @@ export default function About() {
             About <span className="text-primary">Cloud Native Sri Lanka</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Empowering Sri Lanka's cloud-native ecosystem through community, education, and innovation.
+            Empowering Sri Lanka&apos;s cloud-native ecosystem through community, education, and innovation.
           </p>
         </header>
 
