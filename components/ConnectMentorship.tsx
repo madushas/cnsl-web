@@ -21,47 +21,32 @@ import {
 } from "@/components/ui/card";
 
 import { Badge } from "@/components/ui/badge";
-
 import { Button } from "@/components/ui/button";
-
 import Link from "next/link";
 
 export default function ConnectMentorship() {
-  // Consolidated to a single, performant observer
-
   const programFeatures = [
     {
       icon: Clock,
-
       title: "6-Month Program",
-
       description:
         "Comprehensive mentorship journey connecting mentees with industry experts.",
     },
-
     {
       icon: Users,
-
       title: "One-on-One Mentoring",
-
       description:
         "Personalized guidance from experienced DevOps and cloud-native professionals.",
     },
-
     {
       icon: Target,
-
       title: "DevOps & Cloud Native Focus",
-
       description:
         "Learn DevOps practices, Kubernetes, containers, microservices, and cloud technologies.",
     },
-
     {
       icon: Award,
-
       title: "Career Growth",
-
       description:
         "Networking opportunities, hands-on learning, and career advancement support.",
     },
@@ -69,52 +54,34 @@ export default function ConnectMentorship() {
 
   const benefits = [
     "Hands-on learning with real-world projects",
-
     "Networking opportunities with industry professionals",
-
     "Career growth and development guidance",
-
     "Access to exclusive workshops and events",
-
     "Portfolio development and review",
-
     "Interview preparation and job search support",
-
     "Certificate of completion",
-
     "Lifetime access to CNSL community",
   ];
 
   const timeline = [
     {
       phase: "Mentor Registration",
-
       date: "October 20, 2024",
-
       status: "Open",
-
       description:
         "Industry experts can apply to become mentors in the CNSL Connect program",
     },
-
     {
       phase: "Mentee Applications",
-
       date: "November 13, 2024",
-
       status: "Coming Soon",
-
       description:
         "Aspiring developers can apply to join the 6-month mentorship program",
     },
-
     {
       phase: "Program Kickoff",
-
       date: "October 1, 2025",
-
       status: "Upcoming",
-
       description: "Official launch event introducing mentors and mentees",
     },
   ];
@@ -123,33 +90,24 @@ export default function ConnectMentorship() {
     {
       quote:
         "CNSL Connect helped me transition to a DevOps role and advance my career significantly.",
-
       author: "Past Mentee",
-
       role: "DevOps Engineer",
-
       company: "Tech Company",
     },
 
     {
       quote:
         "The mentorship program provided me with hands-on experience and valuable industry connections.",
-
       author: "Program Graduate",
-
       role: "Cloud Engineer",
-
       company: "Startup",
     },
 
     {
       quote:
         "Through CNSL Connect, I gained the skills and confidence needed to land my dream job.",
-
       author: "Former Mentee",
-
       role: "Platform Engineer",
-
       company: "Enterprise",
     },
   ];
@@ -162,16 +120,15 @@ export default function ConnectMentorship() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         {/* Header */}
-
-        <header className="text-center mb-20">
+        <header className="text-center mb-12 sm:mb-20">
           <h2
             id="mentorship-title"
-            className="text-4xl md:text-5xl font-bold text-foreground mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6"
           >
             CNSL <span className="text-primary">Connect</span>
           </h2>
 
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed mb-8">
             A 6-month program connecting mentees with industry experts to learn
             DevOps and cloud-native technologies.
           </p>
@@ -183,47 +140,44 @@ export default function ConnectMentorship() {
         </header>
 
         {/* Program Overview */}
-
         <section aria-labelledby="overview-title" className="mb-20">
           <div className="text-center mb-12">
             <h3
               id="overview-title"
-              className="text-3xl font-bold text-foreground mb-4"
+              className="text-2xl sm:text-3xl font-bold text-foreground mb-4"
             >
               Program Overview
             </h3>
-
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto">
               CNSL Connect is designed to bridge the gap between learning and
               real-world application in cloud-native technologies.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 sm:gap-8">
             {programFeatures.map((feature) => {
               const IconComponent = feature.icon;
-
               return (
-                <Card
-                  key={feature.title}
-                  className="text-center bg-card border-border hover:border-primary transition-all duration-300"
-                >
-                  <CardHeader>
-                    <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-lg text-primary w-fit">
-                      <IconComponent aria-hidden="true" className="h-6 w-6" />
-                    </div>
+          <Card
+            key={feature.title}
+            className="text-center bg-card border-border hover:border-primary transition-all duration-300"
+          >
+            <CardHeader>
+              <div className="mx-auto mb-0 md:mb-4 p-3 bg-primary/10 rounded-lg text-primary w-fit">
+                <IconComponent aria-hidden="true" className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
 
-                    <CardTitle className="text-xl text-foreground">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
+              <CardTitle className="text-lg sm:text-xl text-foreground">
+                {feature.title}
+              </CardTitle>
+            </CardHeader>
 
-                  <CardContent>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
+            <CardContent>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                {feature.description}
+              </p>
+            </CardContent>
+          </Card>
               );
             })}
           </div>
@@ -238,7 +192,6 @@ export default function ConnectMentorship() {
           >
             Application Process
           </h3>
-
           <div className="max-w-4xl mx-auto space-y-8">
             {timeline.map((phase) => (
               <Card
@@ -251,12 +204,10 @@ export default function ConnectMentorship() {
                   >
                     {phase.status}
                   </Badge>
-
                   <div className="text-sm text-muted-foreground mt-2">
                     {phase.date}
                   </div>
                 </div>
-
                 <div className="p-6 flex-1">
                   <CardTitle className="text-xl mb-2">{phase.phase}</CardTitle>
 
@@ -279,7 +230,6 @@ export default function ConnectMentorship() {
             >
               Program Benefits
             </h3>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
               {benefits.map((benefit) => (
                 <div key={benefit} className="flex items-center space-x-3">
@@ -287,7 +237,6 @@ export default function ConnectMentorship() {
                     aria-hidden="true"
                     className="h-5 w-5 text-secondary shrink-0"
                   />
-
                   <span className="text-muted-foreground">{benefit}</span>
                 </div>
               ))}
@@ -295,7 +244,6 @@ export default function ConnectMentorship() {
           </section>
 
           {/* Success Stories */}
-
           <section
             aria-labelledby="success-stories-title"
             className="lg:col-span-2"
@@ -306,7 +254,6 @@ export default function ConnectMentorship() {
             >
               Success Stories
             </h3>
-
             <div className="space-y-8">
               {successStories.map((story) => (
                 <Card
@@ -356,7 +303,7 @@ export default function ConnectMentorship() {
               Ready to Transform Your Career?
             </h3>
 
-            <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg mb-8 opacity-90 max-w-2xl mx-auto">
               Join CNSL Connect and take the next step in your cloud-native
               journey with expert mentorship and hands-on learning.
             </p>
@@ -376,7 +323,7 @@ export default function ConnectMentorship() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/50 text-white hover:bg-white/10 font-semibold"
+                className="text-primary hover:text-primary-foreground font-semibold shadow-lg"
                 asChild
               >
                 <Link href="/contact">

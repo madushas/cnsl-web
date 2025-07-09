@@ -84,13 +84,13 @@ export default function Footer() {
                       id="footer-email"
                       type="email"
                       placeholder="Enter your email"
-                      className="bg-background border-2 border-border focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-muted-foreground text-foreground shadow-sm hover:border-primary/60 transition-all duration-300 rounded-lg px-4 py-2.5"
+                      className="bg-background border-2 border-border focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground text-foreground shadow-sm hover:border-primary transition-all duration-300 rounded-lg px-4 py-2.5"
                       required
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 font-semibold px-6 py-2.5 rounded-lg border-0"
+                    className="bg-primary hover:bg-secondary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 font-semibold px-6 py-2.5 rounded-lg border-0"
                   >
                     Subscribe
                   </Button>

@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: "class",
@@ -81,9 +81,11 @@ const config: Config = {
         serif: ["var(--font-serif)", "ui-serif", "Georgia"],
       },
       backgroundImage: {
-        "gradient-cnsl": "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)",
+        "gradient-cnsl":
+          "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)",
         "gradient-hero": "linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%)", // Guide.md blue-gray gradient
-        "gradient-card": "linear-gradient(135deg, var(--primary)/10 0%, var(--secondary)/10 100%)",
+        "gradient-card":
+          "linear-gradient(135deg, var(--primary)/10 0%, var(--secondary)/10 100%)",
       },
       keyframes: {
         "accordion-down": {
@@ -126,7 +128,12 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
-}
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/aspect-ratio"),
+    require("tailwindcss-animate"),
+  ],
+};
 
-export default config
+export default config;

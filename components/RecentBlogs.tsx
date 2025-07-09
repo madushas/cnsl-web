@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -25,7 +25,7 @@ const RecentBlogs = () => {
           
           <div className="grid md:grid-cols-3 gap-6">
             {recentPosts.map((post) => (
-              <Card key={post.id} className="group transition-all duration-300 hover:shadow-lg hover:scale-[1.02] overflow-hidden">
+              <Card key={post.id} className="group transition-all duration-300 hover:shadow-lg hover:scale-[1.02] overflow-hidden pt-0">
                 <div className="relative h-48 bg-gradient-to-br from-primary/10 to-secondary/10">
                 <Image 
                   src={post.image}
@@ -35,7 +35,7 @@ const RecentBlogs = () => {
                   height={200}
                 />
                   <div className="absolute top-4 left-4">
-                    <Badge variant="secondary">{post.category}</Badge>
+                    <Badge variant="default">{post.category}</Badge>
                   </div>
                 </div>
                 <CardHeader>
@@ -51,22 +51,19 @@ const RecentBlogs = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
-                  <CardAction className="text-primary hover:text-primary/80">
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`/blog/${post.slug}`}>
                       Read More
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                     </Button>
-                  </CardAction>
-
                 </CardFooter>
               </Card>
             ))}
           </div>
           
           <div className="text-center mt-8">
-            <Button variant="outline" asChild>
+            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
               <Link href="/blog">
                 View All Posts
                 <ArrowRight className="ml-2 h-4 w-4" />

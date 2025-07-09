@@ -43,21 +43,15 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setIsSubmitting(true);
 
     // Simulate form submission
-
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
     // Reset form
-
     setFormData({ name: "", email: "", message: "" });
-
     setIsSubmitting(false);
 
     // In a real application, you would send the data to your backend
-
     alert("Thank you for your message! We&apos;ll get back to you soon.");
   };
 
@@ -66,7 +60,6 @@ export default function Contact() {
   ) => {
     setFormData((prev) => ({
       ...prev,
-
       [e.target.name]: e.target.value,
     }));
   };
@@ -107,7 +100,6 @@ export default function Contact() {
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
             Get in <span className="text-primary">Touch</span>
           </h1>
-
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Have questions about our community, events, or mentorship program?
             We&apos;d love to hear from you!
@@ -230,7 +222,7 @@ export default function Contact() {
 
               <CardContent className="space-y-4">
                 <Link
-                  href="/mentorship"
+                  href="/cnsl-connect"
                   className="block p-4 bg-muted rounded-lg hover:bg-primary/10 transition-colors group"
                 >
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary">

@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { DatabaseEvent } from "@/lib/types";
 import { isPastEvent } from "@/lib/utils";
+import Image from "next/image";
 
 const FeaturedEvents = ({ event }: { event: DatabaseEvent }) => {
   return (
@@ -19,12 +20,24 @@ const FeaturedEvents = ({ event }: { event: DatabaseEvent }) => {
           </p>
         </div>
 
-        <Card className="max-w-4xl mx-auto overflow-hidden">
+        <Card className="max-w-4xl mx-auto overflow-hidden p-0">
           <div className="grid md:grid-cols-2 gap-0">
             <div className="relative h-64 md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Calendar className="h-16 w-16 text-primary/50" />
-              </div>
+<div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+        {event.imageUrl ? (
+          <Image
+            src={event.imageUrl}
+            alt={event.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110 rounded-xl"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+            <Calendar className="h-16 w-16 text-primary/40" />
+          </div>
+        )}
+      </div>
             </div>
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">

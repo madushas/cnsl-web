@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter, Roboto } from 'next/font/google'
+import { Mona_Sans, Roboto } from 'next/font/google'
 import './globals.css'
 
 // Guide.md compliant fonts: Inter primary, Roboto fallback
-const inter = Inter({ 
+const mona_sans = Mona_Sans({ 
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-mona-sans',
   display: 'swap',
 })
 
@@ -68,12 +68,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${roboto.variable} antialiased`}>
+    <html lang="en" className={`${mona_sans.variable} ${roboto.variable} antialiased`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${mona_sans.className} antialiased`}>
         {children}
       </body>
     </html>

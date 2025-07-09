@@ -173,7 +173,7 @@ export function FeaturedBlogCard({ post }: BlogCardProps) {
         </Link>
       </CardHeader>
 
-      <CardContent className="p-5 pt-0 flex flex-col gap-4 flex-grow">
+      <CardContent className="p-5 flex flex-col gap-4 flex-grow">
         <div className="flex items-center justify-between">
           <Badge
             variant="outline"
@@ -214,7 +214,7 @@ export function FeaturedBlogCard({ post }: BlogCardProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-4">
+        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-4">
           <div className="flex items-center gap-1">
             <User className="h-4 w-4" />
             <span itemProp="author" className="font-medium">

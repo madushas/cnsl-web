@@ -17,7 +17,7 @@ interface HeroProps {
 
 export default function Hero({ featuredEvent = null }: HeroProps) {
   return (
-    <section className="relative py-40 overflow-hidden bg-gradient-to-b from-white to-cyan-200/25">
+    <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden bg-gradient-to-b from-white to-cyan-200/25">
       {/* Subtle Asymmetrical Background Shapes - Added pointer-events-none */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/5 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-1/4 h-2/3 bg-secondary/5 pointer-events-none" />
@@ -42,57 +42,46 @@ export default function Hero({ featuredEvent = null }: HeroProps) {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
-          <div className="space-y-16 relative z-20">
-            <div className="inline-flex items-center space-x-2 bg-accent/20 text-primary px-4 py-2 rounded-full text-sm font-semibold border border-ring/80">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span>Open For Outreach</span>
-            </div>
+<div className="space-y-12 sm:space-y-16 relative z-20">
+        <div className="inline-flex items-center space-x-2 bg-accent/20 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-ring/80">
+          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+          <span>Open For Outreach</span>
+        </div>
 
-            <div className="space-y-6">
-              <h1 className="text-7xl font-bold text-foreground leading-tight tracking-tight">
-                Cloud Native
-                <br />
-                <span className="relative">
-                  <span className="text-secondary">Sri Lanka</span>
-                  <div className="absolute -bottom-2 left-0 w-full h-1 bg-secondary rounded-full" />
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                Where DevOps meets community. Learn, build, and scale cloud-native applications with Sri Lanka&apos;s most active tech community.
-              </p>
-            </div>
+        <div className="space-y-6 w-full">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
+            Cloud Native
+            <br />
+            <span className="relative inline-block">
+              <span className="text-primary">Sri Lanka</span>
+              <span className="absolute -bottom-1 sm:-bottom-2 left-0 w-full h-0.5 sm:h-1 bg-secondary rounded-full" />
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-lg leading-relaxed">
+            Where DevOps meets community. Learn, build, and scale cloud-native applications with Sri Lanka&apos;s most active tech community.
+          </p>
+        </div>
 
-            {/* Button container with explicit z-index and pointer-events */}
-            <div className="flex flex-col sm:flex-row gap-4 relative z-30 pointer-events-auto">
-              <Button 
-                size="lg" 
-                variant="default"
-                className="transition-colors duration-200 relative z-30"
-                asChild
-              >
-                <Link href="/about" className="pointer-events-auto">
-                  Join Community
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="transition-colors duration-200 relative z-30"
-                asChild
-              >
-                <Link href="/events" className="pointer-events-auto">View Events</Link>
-              </Button>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Button size="lg" variant="default" asChild className="text-base sm:text-lg">
+            <Link href="/about">
+              Join Community
+              <ArrowRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="text-base sm:text-lg">
+            <Link href="/events">View Events</Link>
+          </Button>
+        </div>
+      </div>
 
-          {/* Right Column - Interactive Cards */}
-          <div className="relative z-20">
-            <FeatureDisplay featuredEvent={featuredEvent} />
-            <div className="absolute -top-4 -right-4 w-20 h-20 bg-secondary rounded-2xl flex items-center justify-center shadow-xl transform hover:rotate-12 transition-all duration-300 pointer-events-none z-40">
-              <Pin className="h-8 w-8 text-white" />
-            </div>
-          </div>
+      {/* Right Column */}
+      <div className="relative z-20 w-full max-w-full sm:max-w-md mx-auto lg:mx-0">
+        <FeatureDisplay featuredEvent={featuredEvent} />
+        <div className="absolute -top-4 -right-4 w-16 sm:w-20 h-16 sm:h-20 bg-secondary rounded-2xl flex items-center justify-center shadow-xl transform hover:rotate-12 transition-all duration-300 pointer-events-none z-40">
+          <Pin className="h-6 sm:h-8 w-6 sm:w-8 text-foreground" />
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -109,7 +98,7 @@ const FeatureDisplay = ({ featuredEvent }: HeroProps) => {
 const EventCard = ({ event }: { event: DatabaseEvent }) => (
   <div className="bg-card/60 backdrop-blur-sm rounded-2xl shadow-xl border border-border/50 p-8 transform transition-all duration-300 hover:shadow-2xl relative z-20">
     <div className="flex items-center space-x-4 mb-6">
-      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
+      <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center shadow-lg">
         <Calendar className="h-6 w-6 text-foreground" />
       </div>
       <div>
