@@ -85,7 +85,7 @@ export default function AdminPostsPage() {
   }
 
   useEffect(() => {
-    let ab = new AbortController()
+    const ab = new AbortController()
     load(ab.signal)
     return () => ab.abort()
   // eslint-disable-next-line react-hooks/exhaustive-deps

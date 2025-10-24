@@ -61,3 +61,5 @@ export default function PrivacyPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-static'

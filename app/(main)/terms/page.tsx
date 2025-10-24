@@ -57,3 +57,5 @@ export default function TermsPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-static'

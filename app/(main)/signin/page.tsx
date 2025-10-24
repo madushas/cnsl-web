@@ -23,3 +23,5 @@ export default function SignInPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-static'

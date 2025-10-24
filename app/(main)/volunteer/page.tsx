@@ -17,11 +17,11 @@ export default function VolunteerPage() {
         {/* Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-h1 text-white mb-4">
-            Help Build Sri Lanka's Cloud Native Community
+            Help Build Sri Lanka&#39;s Cloud Native Community
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Volunteer with CNSL and make a real impact. Whether you have a few hours a month 
-            or want to dive deeper, there's a role for you.
+            or want to dive deeper, there&#39;s a role for you.
           </p>
         </div>
 
@@ -207,7 +207,7 @@ export default function VolunteerPage() {
               <div>
                 <h3 className="text-white font-semibold mb-1">Training & Onboarding</h3>
                 <p className="text-gray-400 text-sm">
-                  We'll teach you everything you need to know to succeed in your role
+                  We&#39;ll teach you everything you need to know to succeed in your role
                 </p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function VolunteerPage() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-h2 text-white mb-4">Ready to Make a Difference?</h2>
           <p className="text-gray-400 mb-8">
-            Join our volunteer team and help us grow Sri Lanka's cloud-native community
+            Join our volunteer team and help us grow Sri Lanka&#39;s cloud-native community
           </p>
           <Link
             href="/contact?topic=Volunteer&ref=volunteer-page"
@@ -264,3 +264,5 @@ export default function VolunteerPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-static'

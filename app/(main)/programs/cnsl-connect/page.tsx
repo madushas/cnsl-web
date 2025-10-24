@@ -43,7 +43,7 @@ export default function CNSLConnectPage() {
               Program Currently in Development
             </h2>
             <p className="text-gray-400 mb-4">
-              We're building the infrastructure for cohort-based mentorship.
+              We&#39;re building the infrastructure for cohort-based mentorship.
               Applications will open soon.
             </p>
             <Link
@@ -69,6 +69,7 @@ export default function CNSLConnectPage() {
                 </div>
                 <h3 className="text-h4 text-white">For Mentees</h3>
               </div>
+        export const dynamic = 'force-static'
               <p className="text-gray-400 mb-4">
                 Get personalized guidance from experienced professionals to
                 accelerate your cloud-native journey
@@ -132,7 +133,7 @@ export default function CNSLConnectPage() {
                 <h3 className="text-h4 text-white">For Community</h3>
               </div>
               <p className="text-gray-400 mb-4">
-                Strengthen Sri Lanka's cloud-native ecosystem through knowledge
+                Strengthen Sri Lanka&#39;s cloud-native ecosystem through knowledge
                 sharing and collaboration
               </p>
               <ul className="space-y-2 text-sm text-gray-400">

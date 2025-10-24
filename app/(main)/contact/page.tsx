@@ -104,7 +104,7 @@ export default function ContactPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || "Failed to send")
-      setStatus({ ok: true, msg: "Thanks! We'll be in touch soon." })
+  setStatus({ ok: true, msg: "Thanks! We'll be in touch soon." })
       setName("")
       setEmail("")
       setAffiliation("")
@@ -336,3 +336,5 @@ export default function ContactPage() {
     </div>
   )
 }
+
+  export const dynamic = 'force-static'

@@ -10,6 +10,8 @@ import { eq } from "drizzle-orm"
 
 export const revalidate = 60
 
+
+export const dynamic = 'force-static'
 export default async function AboutPage() {
   const [organizers, advisors] = await Promise.all([
     db.select().from(schema.people).where(eq(schema.people.category, 'organizer')),

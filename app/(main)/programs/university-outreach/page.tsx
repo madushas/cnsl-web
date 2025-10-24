@@ -15,3 +15,4 @@ export default function UniversityOutreachPage() {
     </div>
   )
 }
+  export const dynamic = 'force-static'

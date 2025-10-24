@@ -16,3 +16,5 @@ export default function MonthlyMeetupsPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-static'

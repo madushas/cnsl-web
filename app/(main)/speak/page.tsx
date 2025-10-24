@@ -151,7 +151,7 @@ export default function SpeakPage() {
                 <div className="flex-1 text-right hidden md:block">
                   <h3 className="text-h4 text-white mb-2">3. Confirmation</h3>
                   <p className="text-gray-400">
-                    We'll reach out to schedule your talk and provide support
+                    We&#39;ll reach out to schedule your talk and provide support
                   </p>
                 </div>
                 <div className="relative z-10">
@@ -208,7 +208,7 @@ export default function SpeakPage() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-h2 text-white mb-4">Ready to Share?</h2>
           <p className="text-gray-400 mb-8">
-            Submit your talk proposal and we'll get back to you within 1-2 weeks
+            Submit your talk proposal and we&#39;ll get back to you within 1-2 weeks
           </p>
           <Link
             href="/contact?topic=Speaking&ref=speak-page"
@@ -224,3 +224,5 @@ export default function SpeakPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-static'
