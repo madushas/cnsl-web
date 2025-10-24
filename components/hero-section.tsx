@@ -6,20 +6,20 @@ import Image from "next/image"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-blue-950/10">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-      <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-blue-500/10 blur-[120px]" />
+    <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-primary/5">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,oklch(0.55_0.22_250_/_0.05)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.55_0.22_250_/_0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+      <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[140px]" />
 
       <div className="container relative mx-auto px-4 section-spacing-lg">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <Reveal className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-4 py-2 text-sm text-blue-400 border border-blue-500/20">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary font-medium border border-primary/20 shadow-sm">
               <Sparkles className="h-4 w-4" />
               <span>Join Sri Lanka’s Premier Tech Community</span>
             </div>
 
             <h1 className="text-h1 leading-tight text-foreground">
-              Connecting Sri Lanka’s <span className="text-blue-400">Future Tech Leaders</span>
+              Connecting Sri Lanka's <span className="text-primary font-bold">Future Tech Leaders</span>
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
@@ -30,7 +30,7 @@ export function HeroSection() {
               <Button
                 asChild
                 size="lg"
-                className="group bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 rounded-lg px-8"
+                className="group px-8"
               >
                 <Link href="/contact" aria-label="Join the CNSL community">
                   Join the Community
@@ -41,7 +41,7 @@ export function HeroSection() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="rounded-lg border-2 border-blue-500/50 bg-transparent text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all px-8"
+                className="px-8"
               >
                 <Link href="/events" aria-label="Register for the next CNSL meetup">
                   Register for Next Meetup
@@ -66,7 +66,7 @@ export function HeroSection() {
           </Reveal>
 
           <Reveal className="flex justify-center lg:justify-end" delay={100}>
-            <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-2xl ring-1 ring-white/10">
+            <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-3xl bg-gradient-to-br from-muted to-muted-foreground/10 shadow-elevation-4 ring-1 ring-border">
               <Image
                 src="/3d-interlocking-rings-abstract-sculpture-grayscale.jpg"
                 alt="3D interlocking rings representing connection and collaboration"

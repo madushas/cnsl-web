@@ -44,14 +44,14 @@ export function InitiativesSection() {
         {initiatives.map((initiative, index) => (
           <Reveal key={initiative.title} delay={index * 60}>
           <Card
-            className="group relative overflow-hidden bg-card border-border transition-card hover:-translate-y-1 hover:shadow-card-hover"
+            className="group relative overflow-hidden bg-card border-border"
           >
             <CardHeader className="relative">
-              <div className="mb-4 inline-flex items-center justify-center rounded-xl border border-border bg-surface-subtle p-3">
-                <initiative.icon className="h-6 w-6 text-blue-300" />
+              <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-primary/10 p-4 border border-primary/20">
+                <initiative.icon className="h-7 w-7 text-primary" />
               </div>
-              <CardTitle className="text-2xl text-foreground">{initiative.title}</CardTitle>
-              <div className="text-sm font-medium text-muted-foreground">{initiative.subtitle}</div>
+              <CardTitle className="text-2xl text-foreground group-hover:text-primary transition-colors">{initiative.title}</CardTitle>
+              <div className="text-sm font-semibold text-primary/70">{initiative.subtitle}</div>
             </CardHeader>
             <CardContent className="relative">
               <CardDescription className="text-muted-foreground leading-relaxed mb-4">{initiative.description}</CardDescription>

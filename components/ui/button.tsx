@@ -5,27 +5,34 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-quick disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500/50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-quick disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 focus-ring",
   {
     variants: {
       variant: {
         default:
-          'bg-blue-600 text-white hover:bg-blue-700 shadow-cta rounded-lg',
+          'bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg',
         destructive:
-          'bg-red-600 text-white hover:bg-red-700 shadow-sm rounded-lg',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg',
         outline:
-          'border-2 border-blue-500/30 bg-transparent text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 rounded-lg',
+          'border-2 border-border bg-transparent text-foreground hover:bg-accent hover:border-primary rounded-lg',
         secondary:
-          'bg-surface-subtle text-foreground border border-border hover:bg-surface-muted rounded-lg',
+          'bg-secondary text-secondary-foreground border border-border hover:bg-muted rounded-lg',
         ghost:
-          'text-white/90 hover:text-blue-400 hover:bg-surface-subtle',
-        link: 'text-blue-400 underline-offset-4 hover:underline',
+          'text-foreground hover:text-primary hover:bg-accent rounded-lg',
+        link: 'text-primary underline-offset-4 hover:underline',
+        success:
+          'bg-success text-success-foreground hover:bg-success/90 rounded-lg',
+        warning:
+          'bg-warning text-warning-foreground hover:bg-warning/90 rounded-lg',
       },
       size: {
-        default: 'h-10 px-5 py-2',
-        sm: 'h-8 px-3 py-1.5 text-xs',
+        default: 'h-11 px-6 py-2.5',
+        sm: 'h-9 px-4 py-2 text-xs',
         lg: 'h-12 px-8 py-3 text-base',
+        xl: 'h-14 px-10 py-4 text-lg',
         icon: 'size-10',
+        'icon-sm': 'size-8',
+        'icon-lg': 'size-12',
       },
     },
     defaultVariants: {

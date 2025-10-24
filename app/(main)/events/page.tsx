@@ -2,7 +2,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { db, schema } from "@/db"
 import { and, asc, eq, inArray, sql } from "drizzle-orm"
-import { EventsClientFilterCompact } from "@/components/events-client-filter-compact"
+import { EventsModernLayout } from "@/components/events-modern-layout"
 import type { Metadata } from "next"
 
 export const revalidate = 60 // ISR: revalidate every 60 seconds
@@ -68,13 +68,15 @@ export default async function EventsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main id="main-content" className="container mx-auto px-4 pt-12 pb-20">
-        <div className="mb-8">
-          <h1 className="text-h2 text-foreground">Events</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">Discover upcoming community meetups and special events.</p>
+      <main id="main-content" className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4">Events</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Join us for community meetups, workshops, and tech talks. Connect with fellow developers and learn from industry experts.
+          </p>
         </div>
         
-        <EventsClientFilterCompact events={data} />
+        <EventsModernLayout events={data} />
       </main>
       <Footer />
     </div>

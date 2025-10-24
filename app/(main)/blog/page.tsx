@@ -1,7 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Reveal } from "@/components/reveal"
-import { BlogClientFilterCompact } from "@/components/blog-client-filter-compact"
+import { BlogModernLayout } from "@/components/blog-modern-layout"
 import { db, schema } from "@/db"
 import { desc } from "drizzle-orm"
 import type { Metadata } from "next"
@@ -51,13 +50,15 @@ export default async function BlogPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main id="main-content" className="container mx-auto px-4 pt-12 pb-20">
-        <Reveal className="mb-8">
-          <h1 className="text-h2 text-foreground">Blog & Updates</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">Community recaps, news, and guides.</p>
-        </Reveal>
+      <main id="main-content" className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4">Blog & Updates</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Stay updated with community recaps, technical guides, and the latest news from Cloud Native Sri Lanka.
+          </p>
+        </div>
 
-        <BlogClientFilterCompact posts={posts} />
+        <BlogModernLayout posts={posts} />
       </main>
       <Footer />
     </div>

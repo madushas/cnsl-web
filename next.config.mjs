@@ -14,6 +14,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.cloudinary.com',
       },
+      // Allow other common CDNs if needed
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.eventbookings.com',
+      }
     ],
   },
   async headers() {

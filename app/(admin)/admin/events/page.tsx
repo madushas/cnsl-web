@@ -136,16 +136,19 @@ export default function AdminEventsPage() {
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-h2 text-foreground">Admin · Events</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={()=>load()}><IconRefresh />Refresh</Button>
-          <Button size="sm" asChild><Link href="/admin/events/new"><IconPlus />New Event</Link></Button>
+        <div>
+          <h1 className="text-h3 text-foreground">Events Management</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage your community events and RSVPs</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={()=>load()}><IconRefresh className="size-4" />Refresh</Button>
+          <Button size="sm" asChild><Link href="/admin/events/new"><IconPlus className="size-4" />New Event</Link></Button>
         </div>
       </div>
 
-      <div className="space-y-2 md:hidden">
+      <div className="space-y-3 md:hidden">
         {rows.map((ev) => (
-          <div key={ev.id} className="rounded-md border p-3">
+          <div key={ev.id} className="rounded-lg border border-border bg-card p-4 hover:border-primary transition-colors">
             <div className="font-medium truncate">{ev.title}</div>
             <div className="text-xs text-muted-foreground mt-0.5">
               {new Date(ev.date).toLocaleString()} {ev.city ? `· ${ev.city}` : ''} {ev.venue ? `· ${ev.venue}` : ''}
@@ -222,7 +225,7 @@ export default function AdminEventsPage() {
         </>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-4 bg-muted/30 p-4 rounded-lg border border-border">
           <div className="flex items-center gap-2">
             <Label htmlFor="search" className="sr-only">Search</Label>
             <div className="relative">
@@ -254,7 +257,7 @@ export default function AdminEventsPage() {
           </div>
         </div>
 
-      <div className="rounded-lg border overflow-x-auto hidden md:block">
+      <div className="rounded-lg border border-border overflow-hidden hidden md:block bg-card">
           <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow>
@@ -337,8 +340,8 @@ export default function AdminEventsPage() {
           </Table>
         </div>
 
-      <div className="flex items-center justify-between text-sm">
-          <div className="text-muted-foreground">Page {page} of {pageCount} · {total} total</div>
+      <div className="flex items-center justify-between text-sm bg-muted/30 p-4 rounded-lg border border-border">
+          <div className="text-muted-foreground font-medium">Page {page} of {pageCount} · {total} total events</div>
           <div className="flex items-center gap-2">
             <Select value={String(pageSize)} onValueChange={(v)=>{ setPageSize(Number(v)); setPage(1) }}>
               <SelectTrigger className="w-28"><SelectValue placeholder={String(pageSize)} /></SelectTrigger>

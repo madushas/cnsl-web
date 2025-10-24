@@ -48,7 +48,7 @@ export function Header() {
   }, [user])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/90">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="group flex items-center gap-2 md:gap-3 flex-shrink-0">
@@ -67,7 +67,7 @@ export function Header() {
               <path d="M2 12l10 5 10-5" />
             </svg>
           </div>
-          <span className="text-xl md:text-2xl font-bold text-blue-500 transition-colors group-hover:text-blue-400">
+          <span className="text-xl md:text-2xl font-bold text-primary transition-colors group-hover:text-primary/80">
             CNSL
           </span>
         </Link>
@@ -79,8 +79,8 @@ export function Header() {
               key={link.href}
               href={link.href}
               aria-current={pathname === link.href ? 'page' : undefined}
-              className={`relative text-sm font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-blue-500 after:transition-all hover:text-blue-400 hover:after:w-full ${
-                pathname === link.href ? 'text-blue-400 after:w-full' : 'text-white/90 after:w-0'
+              className={`relative text-sm font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:transition-all hover:text-primary hover:after:w-full ${
+                pathname === link.href ? 'text-primary after:w-full' : 'text-foreground/90 after:w-0'
               }`}
             >
               {link.label}
@@ -97,7 +97,7 @@ export function Header() {
               type="search"
               placeholder="Search..."
               aria-label="Search"
-              className="w-48 xl:w-64 h-10 bg-surface-subtle border-border pl-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-blue-500/50 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+              className="w-48 xl:w-64 h-10 pl-10 text-sm"
             />
           </div>
 
