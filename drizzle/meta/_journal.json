@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1759413459463,
+      "tag": "0000_military_polaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1759413459464,
+      "tag": "0007_add_qr_code_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1759756483841,
+      "tag": "0008_demonic_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1759781144162,
+      "tag": "0009_tearful_meltdown",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1759789207896,
+      "tag": "0010_productive_mercury",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1760097733325,
+      "tag": "0011_omniscient_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1760132702062,
+      "tag": "0012_demonic_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1761184841368,
+      "tag": "0013_violet_rhodey",
+      "breakpoints": true
+    }
+  ]
+}

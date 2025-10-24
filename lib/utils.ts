@@ -1,14 +1,19 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { DatabaseEvent } from "@/lib/types";
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
-export function isPastEvent(event: DatabaseEvent): boolean {
-  const eventDate = new Date(event.eventDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return eventDate < today;
-}
+export function escapeHtml(input: string): string {
+  return String(input).replace(/[&<>"']/g, (ch) => {
+    switch (ch) {
+      case '&': return '&amp;'
+      case '<': return '&lt;'
+      case '>': return '&gt;'
+      case '"': return '&quot;'
+      case "'": return '&#39;'
+      default: return ch
+    }
+  })
+ }

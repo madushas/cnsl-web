@@ -1,0 +1,15 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#0b0b0b"/>
+  <rect x="30" y="30" width="1140" height="615" fill="#111318" stroke="#1f2937" stroke-width="2" rx="16"/>
+  <g fill="#e5e7eb" font-family="sans-serif">
+    <text x="60" y="120" font-size="54" font-weight="700">CNSL Meetup • Event Flyer</text>
+    <text x="60" y="180" font-size="28" fill="#9ca3af">Use a real flyer here for best visuals</text>
+    <text x="60" y="260" font-size="22" fill="#9ca3af">Date:</text>
+    <text x="140" y="260" font-size="22">Oct 18, 2025 • 5:30 PM</text>
+    <text x="60" y="300" font-size="22" fill="#9ca3af">Venue:</text>
+    <text x="150" y="300" font-size="22">Colombo Innovation Tower</text>
+  </g>
+  <rect x="60" y="360" width="360" height="180" rx="12" fill="#0f172a" stroke="#1f2937"/>
+  <rect x="450" y="360" width="360" height="180" rx="12" fill="#0f172a" stroke="#1f2937"/>
+  <rect x="840" y="360" width="300" height="180" rx="12" fill="#0f172a" stroke="#1f2937"/>
+</svg>

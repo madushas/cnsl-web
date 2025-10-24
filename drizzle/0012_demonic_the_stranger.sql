@@ -1,0 +1,1 @@
+CREATE INDEX "idx_checkpoint_scans_event_rsvp_type_time" ON "checkpoint_scans" USING btree ("event_id","rsvp_id","checkpoint_type","scanned_at");
