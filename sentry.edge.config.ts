@@ -1,15 +1,57 @@
-// This file configures Sentry for Edge Runtime (middleware, edge routes)
-// To enable: Install @sentry/nextjs and uncomment this code
+// Sentry Edge Runtime Configuration for Middleware and Edge Routes
+import * as Sentry from "@sentry/nextjs";
 
-/*
-import * as Sentry from "@sentry/nextjs"
+const SENTRY_DSN = process.env.SENTRY_DSN;
+const ENVIRONMENT = process.env.VERCEL_ENV || process.env.NODE_ENV || "development";
+const IS_PRODUCTION = ENVIRONMENT === "production";
+const IS_DEVELOPMENT = ENVIRONMENT === "development";
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1.0,
-  debug: false,
-  environment: process.env.NODE_ENV,
-})
-*/
+// Only initialize Sentry if DSN is provided
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: ENVIRONMENT,
 
-export {}
+    // Lower sample rate for edge runtime due to resource constraints
+    tracesSampleRate: IS_PRODUCTION ? 0.01 : 0.1,
+
+    // Debug mode
+    debug: IS_DEVELOPMENT,
+
+    // Release tracking
+    release: process.env.VERCEL_GIT_COMMIT_SHA,
+
+    enableLogs: true,
+
+    // Edge runtime has limited capabilities
+    maxBreadcrumbs: 20,
+
+    // Filter out middleware noise
+    ignoreErrors: [
+      "NEXT_NOT_FOUND",
+      "NEXT_REDIRECT",
+      /NotFoundError/,
+      /RedirectError/,
+    ],
+
+    // Minimal error filtering for edge runtime
+    beforeSend(event, hint) {
+      // Don't send events in development
+      if (IS_DEVELOPMENT && !process.env.SENTRY_DEBUG) {
+        return null;
+      }
+
+      return event;
+    },
+
+    // Add edge context
+    initialScope: {
+      tags: {
+        component: "edge",
+        runtime: "edge",
+      },
+    },
+  });
+}
+
+export { };
