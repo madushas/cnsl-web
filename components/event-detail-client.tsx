@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Users, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { withCSRF } from "@/lib/csrf";
@@ -44,7 +44,7 @@ export function EventDetailClient({
     <>
       {/* Hero flyer */}
       <div className="mb-8">
-        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border shadow-card">
           <Image
             src={event.image || "/event-flyer-placeholder.svg"}
             alt={`${event.title} flyer`}
@@ -55,54 +55,64 @@ export function EventDetailClient({
           />
         </div>
       </div>
-      <div className="mb-8 space-y-3">
-        <Badge variant="secondary" className="gap-2 px-4 py-1.5 text-sm">
-          <Calendar className="h-4 w-4" />
-          {dt.toLocaleString(undefined, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}
-        </Badge>
-        <h1 className="text-h2 text-foreground">{event.title}</h1>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          <span>
-            {event.venue} - {event.city}
-          </span>
+      <div className="mb-8 space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary" className="gap-2 px-4 py-2 text-sm">
+            <Calendar className="h-4 w-4" />
+            {dt.toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </Badge>
+          <Badge variant="outline" className="gap-2 px-4 py-2 text-sm">
+            <Users className="h-4 w-4" />
+            {event.registered} registered
+          </Badge>
         </div>
-        <div className="pt-1">
+        <h1 className="text-h2 text-foreground">{event.title}</h1>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <MapPin className="h-5 w-5 text-primary" />
+            <span className="font-medium">
+              {event.venue} · {event.city}
+            </span>
+          </div>
           <Link
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.venue || "") + ", " + (event.city || ""))}`}
-            className="text-sm text-blue-400 hover:underline"
+            className="text-sm text-primary hover:underline inline-flex items-center gap-1 ml-7"
             target="_blank"
             rel="noreferrer"
           >
-            Open in Google Maps
+            View on Google Maps
+            <ExternalLink className="h-3 w-3" />
           </Link>
         </div>
       </div>
 
       <section className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-        <div className="space-y-6">
-          <p className="text-muted-foreground leading-relaxed">
-            {event.description}
-          </p>
+        <div className="space-y-8">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+            <h2 className="text-h4 text-foreground mb-4">About this event</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              {event.description}
+            </p>
+          </div>
 
-          <div className="space-y-3">
-            <h2 className="text-h4 text-foreground">Sessions</h2>
-            <ul className="space-y-2">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+            <h2 className="text-h4 text-foreground mb-4">Sessions</h2>
+            <ul className="space-y-3">
               {event.topics.map((t) => {
                 const byTopic = event.speakers.filter((s) => s.topic === t);
                 return (
                   <li
                     key={t}
-                    className="rounded-lg border border-border bg-white/5 p-3"
+                    className="rounded-lg border border-border bg-gradient-to-r from-primary/5 to-primary/10 p-4"
                   >
-                    <div className="font-semibold text-foreground">{t}</div>
+                    <div className="font-semibold text-foreground mb-1">{t}</div>
                     <div className="text-sm text-muted-foreground">
                       {byTopic.length > 0
                         ? byTopic.map((s) => s.name).join(", ")
-                        : "TBA"}
+                        : "Speaker to be announced"}
                     </div>
                   </li>
                 );
@@ -110,18 +120,23 @@ export function EventDetailClient({
             </ul>
           </div>
 
-          <div className="space-y-3">
-            <h2 className="text-h4 text-foreground">Speakers</h2>
-            <ul className="space-y-2">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+            <h2 className="text-h4 text-foreground mb-4">Speakers</h2>
+            <ul className="space-y-4">
               {event.speakers.map((s) => (
-                <li key={s.name} className="flex items-start gap-3">
-                  <Users className="mt-1 h-4 w-4 text-blue-400" />
+                <li key={s.name} className="flex items-start gap-4 p-3 rounded-lg hover:bg-surface-subtle transition-colors">
+                  <div className="rounded-full bg-primary/10 p-2.5 shrink-0">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
                   <div>
                     <div className="font-semibold text-foreground">
                       {s.name}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {s.title} - {s.topic}
+                      {s.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Topic: {s.topic}
                     </div>
                   </div>
                 </li>
@@ -130,33 +145,41 @@ export function EventDetailClient({
           </div>
         </div>
 
-        <aside className="space-y-4 rounded-2xl border border-border bg-card card-padding">
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
-            <Users className="h-5 w-5" />
-            <span className="text-sm font-medium">Registration</span>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-foreground">
-              {event.registered}
+        <aside className="space-y-6">
+          <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden sticky top-24">
+            <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-6 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-sm font-semibold">Registration</span>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-foreground">
+                  {event.registered}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {event.capacity > 0
+                    ? `of ${event.capacity} spots filled`
+                    : "people registered"}
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              people have registered
-            </p>
+            <div className="p-6 space-y-4">
+              <div className="rounded-lg border border-border bg-surface-subtle p-4">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Registration is open to everyone. After review, organizers will
+                  send invitations to selected participants.
+                  {event.capacity > 0 &&
+                    ` Expected capacity: ${event.capacity} attendees.`}
+                </p>
+              </div>
+              <RSVPForm
+                slug={event.slug}
+                title={event.title}
+                initialProfile={initialProfile}
+                initialMyRsvp={initialMyRsvp}
+              />
+            </div>
           </div>
-          <div className="rounded-lg border border-border bg-white/5 p-3">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Registration is open to everyone. After review, organizers will
-              send invitations to selected participants.
-              {event.capacity > 0 &&
-                ` Expected capacity: ${event.capacity} attendees.`}
-            </p>
-          </div>
-          <RSVPForm
-            slug={event.slug}
-            title={event.title}
-            initialProfile={initialProfile}
-            initialMyRsvp={initialMyRsvp}
-          />
         </aside>
       </section>
     </>

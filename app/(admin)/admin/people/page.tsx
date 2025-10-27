@@ -304,8 +304,8 @@ export default function AdminPeoplePage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete person?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete "
-              {personToDelete?.name}".
+              This action cannot be undone. This will permanently delete &quot;
+              {personToDelete?.name}&quot;.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -55,6 +55,7 @@ export type TicketData = {
   eventTitle?: string;
   eventDate?: string;
   venue?: string;
+  qrCodeUrl?: string; // Pre-generated QR code URL from CDN
 };
 
 /**
@@ -72,6 +73,8 @@ export async function generateQRCode(
   errorCorrectionLevel: "L" | "M" | "Q" | "H" = "H",
 ): Promise<string> {
   try {
+    console.log(`Generating QR code for ticket: ${ticketNumber}, payload: ${payload}`);
+    
     // Generate QR code as data URL first (works in both browser and Node.js)
     const qrDataUrl = await QRCode.toDataURL(payload, {
       width: size,
@@ -83,15 +86,24 @@ export async function generateQRCode(
       },
     });
 
+    console.log(`QR code generated successfully, data URL length: ${qrDataUrl.length}`);
+
     // If we have a ticket number, try to upload to CDN
     if (ticketNumber && (process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_URL)) {
       try {
+        console.log(`Attempting CDN upload for ticket: ${ticketNumber}`);
+        
         // Convert data URL to blob for CDN upload
         const response = await fetch(qrDataUrl);
         const blob = await response.blob();
         
+        console.log(`Blob created, size: ${blob.size} bytes`);
+        
         const { uploadQRCode } = await import('./cloudinary-upload');
-        return await uploadQRCode(blob, ticketNumber);
+        const cdnUrl = await uploadQRCode(blob, ticketNumber);
+        
+        console.log(`CDN upload successful: ${cdnUrl}`);
+        return cdnUrl;
       } catch (uploadError) {
         console.warn('CDN upload failed, falling back to data URL:', uploadError);
         // Fallback to data URL if CDN upload fails
@@ -99,6 +111,7 @@ export async function generateQRCode(
       }
     }
 
+    console.log('No CDN configuration found, returning data URL');
     // Return data URL for backward compatibility
     return qrDataUrl;
   } catch (error) {
@@ -198,13 +211,20 @@ export async function generateTicket(
     // Draw background
     ctx.drawImage(bgImage, 0, 0);
 
-    // Generate and draw QR code
-    const qrDataUrl = await generateQRCode(
-      data.ticketNumber,
-      data.ticketNumber, // Pass ticket number for CDN naming
-      template.qrConfig.size,
-      template.qrConfig.errorCorrectionLevel || "H",
-    );
+    // Use existing QR code URL if available, otherwise generate new one
+    let qrDataUrl: string;
+    if ((data as any).qrCodeUrl) {
+      // Use pre-generated QR code from database/CDN
+      qrDataUrl = (data as any).qrCodeUrl;
+    } else {
+      // Fallback: generate QR code (this should rarely happen now)
+      qrDataUrl = await generateQRCode(
+        data.ticketNumber,
+        data.ticketNumber,
+        template.qrConfig.size,
+        template.qrConfig.errorCorrectionLevel || "H",
+      );
+    }
     const qrImage = await loadImage(qrDataUrl);
     ctx.drawImage(
       qrImage,

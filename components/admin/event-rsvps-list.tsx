@@ -66,6 +66,7 @@ type RSVP = {
   checkedInAt?: string;
   affiliation?: string;
   qrCode?: string;
+  ticketImageUrl?: string;
   checkpoints?: {
     hasEntry: boolean;
     hasRefreshment: boolean;
@@ -262,7 +263,7 @@ export default function EventRSVPsList({ slug, capacity, title, date, venue }: P
             email: r.email,
             status: r.status,
             ticketNumber: r.ticketNumber,
-            ticketImageUrl: r.qrCode || undefined,
+            ticketImageUrl: r.ticketImageUrl || undefined,
           }))}
           onComplete={fetchData}
         />

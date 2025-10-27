@@ -58,11 +58,20 @@ export async function uploadToCloudinary(
   // For unsigned uploads, we need a preset. If not set, use a default one
   if (!uploadPreset) {
     uploadPreset = 'ml_default'; // Cloudinary's default unsigned preset
+    console.warn('CLOUDINARY_UNSIGNED_PRESET not set, using default preset. This may fail if not configured in Cloudinary.');
   }
   
+  console.log(`Using upload preset: ${uploadPreset}`);
+  
   if (!cloudName) {
+    console.error('Cloudinary configuration missing:', {
+      CLOUDINARY_CLOUD_NAME: !!process.env.CLOUDINARY_CLOUD_NAME,
+      CLOUDINARY_URL: !!process.env.CLOUDINARY_URL,
+    });
     throw new Error('Cloudinary cloud name not found. Set CLOUDINARY_CLOUD_NAME or CLOUDINARY_URL');
   }
+
+  console.log(`Uploading to Cloudinary: ${cloudName}, preset: ${uploadPreset}`);
 
   // Prepare form data
   const formData = new FormData();
@@ -96,13 +105,12 @@ export async function uploadToCloudinary(
     formData.append('tags', options.tags.join(','));
   }
 
-  // Set format and quality for optimization
-  if (options.format && options.format !== 'auto') {
-    formData.append('format', options.format);
-  }
+  // Note: format and quality parameters are not allowed in unsigned uploads
+  // These are handled by the upload preset configuration in Cloudinary dashboard
   
   if (options.quality && options.quality !== 'auto') {
-    formData.append('quality', options.quality.toString());
+    // Only add quality if the upload preset allows it
+    console.log(`Quality setting ${options.quality} will be ignored for unsigned upload`);
   }
 
   try {
@@ -139,13 +147,19 @@ export async function uploadQRCode(
   qrCodeData: string | Buffer | Blob,
   ticketNumber: string
 ): Promise<string> {
-  return uploadToCloudinary(qrCodeData, {
-    folder: 'tickets/qr-codes',
-    public_id: `qr_${ticketNumber}`,
-    tags: ['qr-code', 'ticket'],
-    format: 'png',
-    quality: 'auto'
-  });
+  try {
+    return await uploadToCloudinary(qrCodeData, {
+      folder: 'tickets/qr-codes',
+      public_id: `qr_${ticketNumber}`,
+      tags: ['qr-code', 'ticket']
+    });
+  } catch (error) {
+    console.warn('QR upload failed with custom preset, trying with minimal options:', error);
+    // Fallback: try with minimal options (no folder, no custom public_id)
+    return await uploadToCloudinary(qrCodeData, {
+      tags: ['qr-code', 'ticket']
+    });
+  }
 }
 
 /**
@@ -158,11 +172,17 @@ export async function uploadTicketImage(
   ticketBlob: Blob,
   ticketNumber: string
 ): Promise<string> {
-  return uploadToCloudinary(ticketBlob, {
-    folder: 'tickets/images',
-    public_id: `ticket_${ticketNumber}`,
-    tags: ['ticket', 'generated'],
-    format: 'webp',
-    quality: 85
-  });
+  try {
+    return await uploadToCloudinary(ticketBlob, {
+      folder: 'tickets/images',
+      public_id: `ticket_${ticketNumber}`,
+      tags: ['ticket', 'generated']
+    });
+  } catch (error) {
+    console.warn('Ticket image upload failed with custom preset, trying with minimal options:', error);
+    // Fallback: try with minimal options
+    return await uploadToCloudinary(ticketBlob, {
+      tags: ['ticket', 'generated']
+    });
+  }
 }

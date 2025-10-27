@@ -9,6 +9,7 @@ import { Sora } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "./providers";
 import "./globals.css";
+import { Sentry } from "@/lib/sentry";
 
 const sora = Sora({
   subsets: ["latin"],
