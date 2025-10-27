@@ -1,55 +1,37 @@
 /**
  * Checkpoint System Helper Functions
- * 
+ *
  * Database queries and utility functions for the multi-checkpoint system
  */
 
-import { db, schema } from '@/db'
-import { eq, and, sql, or, desc } from 'drizzle-orm'
-import type { 
-  CheckpointType, 
-  CheckpointStats, 
+import { db, schema } from "@/db";
+import { eq, and, sql, or, desc } from "drizzle-orm";
+import type {
+  CheckpointType,
+  CheckpointStats,
   CheckpointStatus,
   CheckpointScanInput,
-  CheckpointHistoryEntry 
-} from '@/lib/types/checkpoint'
+  CheckpointHistoryEntry,
+} from "@/lib/types/checkpoint";
 
 /**
  * Get checkpoint statistics for an event
  */
-export async function getCheckpointStats(eventId: string): Promise<CheckpointStats> {
-  // Get total approved RSVPs
-  const [totalResult] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(schema.rsvps)
-    .where(
-      and(
-        eq(schema.rsvps.eventId, eventId),
-        sql`${schema.rsvps.status} IN ('approved', 'invited')`
-      )
-    )
-  
-  const total = Number(totalResult?.count || 0)
-  
-  // Get counts per checkpoint type
-  const checkpointCounts = await db
-    .select({
-      checkpointType: schema.checkpointScans.checkpointType,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(schema.checkpointScans)
-    .where(eq(schema.checkpointScans.eventId, eventId))
-    .groupBy(schema.checkpointScans.checkpointType)
-  
-  const counts: Record<string, number> = {}
-  checkpointCounts.forEach(row => {
-    counts[row.checkpointType] = Number(row.count || 0)
-  })
-  
-  const entry = counts['entry'] || 0
-  const refreshment = counts['refreshment'] || 0
-  const swag = counts['swag'] || 0
-  
+export async function getCheckpointStats(
+  eventId: string,
+): Promise<CheckpointStats> {
+  const { rows } = await db.execute(sql`
+    SELECT total, approved, invited, entry_scans, refreshment_scans, swag_scans
+    FROM event_rsvp_rollup
+    WHERE event_id = ${eventId}
+  `);
+
+  const stats = rows?.[0] || null;
+  const total = Number(stats?.invited ?? stats?.approved ?? stats?.total ?? 0);
+  const entry = Number(stats?.entry_scans ?? 0);
+  const refreshment = Number(stats?.refreshment_scans ?? 0);
+  const swag = Number(stats?.swag_scans ?? 0);
+
   return {
     eventId,
     total,
@@ -57,42 +39,46 @@ export async function getCheckpointStats(eventId: string): Promise<CheckpointSta
     refreshment,
     swag,
     entryPercentage: total > 0 ? Math.round((entry / total) * 100) : 0,
-    refreshmentPercentage: total > 0 ? Math.round((refreshment / total) * 100) : 0,
+    refreshmentPercentage:
+      total > 0 ? Math.round((refreshment / total) * 100) : 0,
     swagPercentage: total > 0 ? Math.round((swag / total) * 100) : 0,
-  }
+  };
 }
 
 /**
  * Get checkpoint status for a specific RSVP
  */
-export async function getCheckpointStatus(rsvpId: string, eventId: string): Promise<CheckpointStatus> {
-  const scans = await db
-    .select()
-    .from(schema.checkpointScans)
-    .where(
-      and(
-        eq(schema.checkpointScans.rsvpId, rsvpId),
-        eq(schema.checkpointScans.eventId, eventId)
-      )
-    )
-  
-  const entryScan = scans.find(s => s.checkpointType === 'entry')
-  const refreshmentScan = scans.find(s => s.checkpointType === 'refreshment')
-  const swagScan = scans.find(s => s.checkpointType === 'swag')
-  
+export async function getCheckpointStatus(
+  rsvpId: string,
+  eventId: string,
+): Promise<CheckpointStatus> {
+  const { rows } = await db.execute(sql`
+    SELECT *
+    FROM get_checkpoint_status(${eventId}::uuid, ${rsvpId}::uuid)
+  `);
+
+  const result = rows?.[0];
+
+  const toDate = (value: unknown): Date | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    const date = new Date(value as string);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
   return {
     rsvpId,
     eventId,
-    hasEntry: !!entryScan,
-    hasRefreshment: !!refreshmentScan,
-    hasSwag: !!swagScan,
-    entryScannedAt: entryScan?.scannedAt || null,
-    refreshmentScannedAt: refreshmentScan?.scannedAt || null,
-    swagScannedAt: swagScan?.scannedAt || null,
-    entryScannedBy: entryScan?.scannedBy || null,
-    refreshmentScannedBy: refreshmentScan?.scannedBy || null,
-    swagScannedBy: swagScan?.scannedBy || null,
-  }
+    hasEntry: Boolean(result?.has_entry),
+    hasRefreshment: Boolean(result?.has_refreshment),
+    hasSwag: Boolean(result?.has_swag),
+    entryScannedAt: toDate(result?.entry_scanned_at),
+    refreshmentScannedAt: toDate(result?.refreshment_scanned_at),
+    swagScannedAt: toDate(result?.swag_scanned_at),
+    entryScannedBy: null,
+    refreshmentScannedBy: null,
+    swagScannedBy: null,
+  };
 }
 
 /**
@@ -100,31 +86,34 @@ export async function getCheckpointStatus(rsvpId: string, eventId: string): Prom
  * Returns null if already scanned at this checkpoint (duplicate prevention)
  */
 export async function createCheckpointScan(
-  input: CheckpointScanInput
+  input: CheckpointScanInput,
 ): Promise<{ id: string; alreadyScanned: boolean } | null> {
   try {
     const values: any = {
       rsvpId: input.rsvpId,
       eventId: input.eventId,
       checkpointType: input.checkpointType as string,
-    }
-    
-    if (input.scannedBy) values.scannedBy = input.scannedBy
-    if (input.scanMethod) values.scanMethod = input.scanMethod as string
-    if (input.notes) values.notes = input.notes
-    
+    };
+
+    if (input.scannedBy) values.scannedBy = input.scannedBy;
+    if (input.scanMethod) values.scanMethod = input.scanMethod as string;
+    if (input.notes) values.notes = input.notes;
+
     const [result] = await db
       .insert(schema.checkpointScans)
       .values(values)
-      .returning({ id: schema.checkpointScans.id })
-    
-    return { id: result.id, alreadyScanned: false }
+      .returning({ id: schema.checkpointScans.id });
+
+    return { id: result.id, alreadyScanned: false };
   } catch (error: any) {
     // Check if it's a unique constraint violation (duplicate scan)
-    if (error?.code === '23505' || error?.constraint === 'checkpoint_scans_unique') {
-      return { id: '', alreadyScanned: true }
+    if (
+      error?.code === "23505" ||
+      error?.constraint === "checkpoint_scans_unique"
+    ) {
+      return { id: "", alreadyScanned: true };
     }
-    throw error
+    throw error;
   }
 }
 
@@ -134,7 +123,7 @@ export async function createCheckpointScan(
 export async function deleteCheckpointScan(
   rsvpId: string,
   eventId: string,
-  checkpointType: CheckpointType
+  checkpointType: CheckpointType,
 ): Promise<boolean> {
   const [result] = await db
     .delete(schema.checkpointScans)
@@ -142,12 +131,12 @@ export async function deleteCheckpointScan(
       and(
         eq(schema.checkpointScans.rsvpId, rsvpId),
         eq(schema.checkpointScans.eventId, eventId),
-        eq(schema.checkpointScans.checkpointType, checkpointType)
-      )
+        eq(schema.checkpointScans.checkpointType, checkpointType),
+      ),
     )
-    .returning({ id: schema.checkpointScans.id })
-  
-  return !!result
+    .returning({ id: schema.checkpointScans.id });
+
+  return !!result;
 }
 
 /**
@@ -156,26 +145,28 @@ export async function deleteCheckpointScan(
 export async function findRsvpByIdentifier(
   eventId: string,
   identifier: {
-    id?: string
-    email?: string
-    ticketNumber?: string
-    qr?: string
-  }
+    id?: string;
+    email?: string;
+    ticketNumber?: string;
+    qr?: string;
+  },
 ): Promise<{ id: string; name: string; email: string } | null> {
-  const conditions = [eq(schema.rsvps.eventId, eventId)]
-  
+  const conditions = [eq(schema.rsvps.eventId, eventId)];
+
   if (identifier.id) {
-    conditions.push(eq(schema.rsvps.id, identifier.id))
+    conditions.push(eq(schema.rsvps.id, identifier.id));
   } else if (identifier.email) {
-    conditions.push(eq(schema.rsvps.email, identifier.email.toLowerCase()))
+    conditions.push(eq(schema.rsvps.email, identifier.email.toLowerCase()));
   } else if (identifier.ticketNumber) {
-    conditions.push(eq(schema.rsvps.ticketNumber, identifier.ticketNumber.toUpperCase()))
+    conditions.push(
+      eq(schema.rsvps.ticketNumber, identifier.ticketNumber.toUpperCase()),
+    );
   } else if (identifier.qr) {
-    conditions.push(eq(schema.rsvps.qrCode, identifier.qr))
+    conditions.push(eq(schema.rsvps.qrCode, identifier.qr));
   } else {
-    return null
+    return null;
   }
-  
+
   const [rsvp] = await db
     .select({
       id: schema.rsvps.id,
@@ -184,9 +175,9 @@ export async function findRsvpByIdentifier(
     })
     .from(schema.rsvps)
     .where(and(...conditions))
-    .limit(1)
-  
-  return rsvp || null
+    .limit(1);
+
+  return rsvp || null;
 }
 
 /**
@@ -195,18 +186,18 @@ export async function findRsvpByIdentifier(
 export async function getCheckpointHistory(
   eventId: string,
   options: {
-    checkpointType?: CheckpointType
-    limit?: number
-    offset?: number
-  } = {}
+    checkpointType?: CheckpointType;
+    limit?: number;
+    offset?: number;
+  } = {},
 ): Promise<CheckpointHistoryEntry[]> {
-  const { checkpointType, limit = 50, offset = 0 } = options
-  
-  const conditions = [eq(schema.checkpointScans.eventId, eventId)]
+  const { checkpointType, limit = 50, offset = 0 } = options;
+
+  const conditions = [eq(schema.checkpointScans.eventId, eventId)];
   if (checkpointType) {
-    conditions.push(eq(schema.checkpointScans.checkpointType, checkpointType))
+    conditions.push(eq(schema.checkpointScans.checkpointType, checkpointType));
   }
-  
+
   const results = await db
     .select({
       id: schema.checkpointScans.id,
@@ -223,9 +214,9 @@ export async function getCheckpointHistory(
     .where(and(...conditions))
     .orderBy(desc(schema.checkpointScans.scannedAt))
     .limit(limit)
-    .offset(offset)
-  
-  return results.map(r => ({
+    .offset(offset);
+
+  return results.map((r) => ({
     id: r.id,
     checkpointType: r.checkpointType as CheckpointType,
     scannedAt: r.scannedAt,
@@ -234,7 +225,7 @@ export async function getCheckpointHistory(
     notes: r.notes,
     attendeeName: r.attendeeName,
     attendeeEmail: r.attendeeEmail,
-  }))
+  }));
 }
 
 /**
@@ -242,11 +233,11 @@ export async function getCheckpointHistory(
  * This should be run once during migration
  */
 export async function syncLegacyCheckIns(eventId?: string): Promise<number> {
-  const conditions = [sql`${schema.rsvps.checkedInAt} IS NOT NULL`]
+  const conditions = [sql`${schema.rsvps.checkedInAt} IS NOT NULL`];
   if (eventId) {
-    conditions.push(eq(schema.rsvps.eventId, eventId))
+    conditions.push(eq(schema.rsvps.eventId, eventId));
   }
-  
+
   const rsvpsWithCheckIn = await db
     .select({
       id: schema.rsvps.id,
@@ -254,36 +245,36 @@ export async function syncLegacyCheckIns(eventId?: string): Promise<number> {
       checkedInAt: schema.rsvps.checkedInAt,
     })
     .from(schema.rsvps)
-    .where(and(...conditions))
-  
-  let syncCount = 0
-  
+    .where(and(...conditions));
+
+  let syncCount = 0;
+
   for (const rsvp of rsvpsWithCheckIn) {
-    if (!rsvp.checkedInAt) continue
-    
+    if (!rsvp.checkedInAt) continue;
+
     try {
       const values: any = {
         rsvpId: rsvp.id,
         eventId: rsvp.eventId,
-        checkpointType: 'entry',
+        checkpointType: "entry",
         scannedAt: rsvp.checkedInAt,
-        scanMethod: 'manual',
-        notes: 'Migrated from legacy check-in',
-      }
-      
+        scanMethod: "manual",
+        notes: "Migrated from legacy check-in",
+      };
+
       await db
         .insert(schema.checkpointScans)
         .values(values)
-        .onConflictDoNothing()
-      
-      syncCount++
+        .onConflictDoNothing();
+
+      syncCount++;
     } catch (error) {
       // Skip on error (likely duplicate)
-      continue
+      continue;
     }
   }
-  
-  return syncCount
+
+  return syncCount;
 }
 
 /**
@@ -297,15 +288,15 @@ export async function syncEntryToLegacyCheckIn(rsvpId: string): Promise<void> {
     .where(
       and(
         eq(schema.checkpointScans.rsvpId, rsvpId),
-        eq(schema.checkpointScans.checkpointType, 'entry')
-      )
+        eq(schema.checkpointScans.checkpointType, "entry"),
+      ),
     )
-    .limit(1)
-  
+    .limit(1);
+
   if (entryScan) {
     await db
       .update(schema.rsvps)
       .set({ checkedInAt: entryScan.scannedAt })
-      .where(eq(schema.rsvps.id, rsvpId))
+      .where(eq(schema.rsvps.id, rsvpId));
   }
 }

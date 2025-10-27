@@ -1,6 +1,6 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import Link from "next/link"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -14,7 +14,10 @@ export default function NotFound() {
             The page you are looking for doesn’t exist or has been moved.
           </p>
           <div className="mt-8">
-            <Link href="/" className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-blue-700 hover:to-blue-600">
+            <Link
+              href="/"
+              className="inline-flex items-center rounded-lg bg-linear-to-r from-blue-600 to-blue-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-blue-700 hover:to-blue-600"
+            >
               ← Back to Home
             </Link>
           </div>
@@ -22,5 +25,5 @@ export default function NotFound() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
