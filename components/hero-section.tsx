@@ -15,11 +15,11 @@ export function HeroSection() {
           <Reveal className="space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary font-medium border border-primary/20 shadow-sm">
               <Sparkles className="h-4 w-4" />
-              <span>Join Sri Lanka’s Premier Tech Community</span>
+              <span>Join Sri Lanka&apos;s Premier Tech Community</span>
             </div>
 
             <h1 className="text-h1 leading-tight text-foreground">
-              Connecting Sri Lanka`&apos;s{" "}
+              Connecting Sri Lanka&apos;s{" "}
               <span className="text-primary font-bold">
                 Future Tech Leaders
               </span>
