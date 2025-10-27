@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { AdminSiteHeader } from '@/components/admin/site-header-admin'
-import { Breadcrumb } from '@/components/admin/breadcrumb'
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSiteHeader } from "@/components/admin/site-header-admin";
+import { Breadcrumb } from "@/components/admin/breadcrumb";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <SidebarProvider
       style={{
         // Align with the example dashboard layout
-        ['--sidebar-width' as any]: 'calc(var(--spacing) * 72)',
-        ['--header-height' as any]: 'calc(var(--spacing) * 12)'
+        ["--sidebar-width" as any]: "calc(var(--spacing) * 72)",
+        ["--header-height" as any]: "calc(var(--spacing) * 12)",
       }}
     >
       <AppSidebar variant="inset" menu="admin" />
@@ -29,5 +33,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

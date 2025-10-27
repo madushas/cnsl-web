@@ -28,20 +28,20 @@ function truncate(text: string | null | undefined, max = 100) {
 
 export function EventCardCompact({ event }: { event: EventCardProps }) {
   const isFull = event.capacity > 0 && event.registered >= event.capacity;
-  const isPast = event.isPast || new Date(event.date).getTime() < Date.now();
-  
+  const isPast = event.isPast || new Date(event.date).getTime() < new Date().getTime();
+
   // Single primary status badge
-  const statusBadge = isPast 
+  const statusBadge = isPast
     ? { label: "Past Event", variant: "outline" as const }
-    : isFull 
-    ? { label: "Full", variant: "default" as const }
-    : { label: "Open", variant: "secondary" as const };
+    : isFull
+      ? { label: "Full", variant: "default" as const }
+      : { label: "Open", variant: "secondary" as const };
 
   return (
     <article className="group card-compact h-full flex flex-col">
       <Link href={`/events/${event.slug}`} className="flex flex-col h-full">
         {/* Image */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-4/3 w-full overflow-hidden">
           <Image
             src={event.image ?? "/event-flyer-placeholder.svg"}
             alt={event.title}
@@ -49,8 +49,8 @@ export function EventCardCompact({ event }: { event: EventCardProps }) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <Badge 
-            className="absolute left-3 top-3 shadow-sm" 
+          <Badge
+            className="absolute left-3 top-3 shadow-sm"
             variant={statusBadge.variant}
           >
             {statusBadge.label}
@@ -98,10 +98,10 @@ export function EventCardCompact({ event }: { event: EventCardProps }) {
                 {event.registered}/{event.capacity > 0 ? event.capacity : "∞"}
               </span>
             </div>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant={isPast ? "outline" : "default"}
-              className="pointer-events-none" 
+              className="pointer-events-none"
               tabIndex={-1}
             >
               {isPast ? "View Details" : isFull ? "View" : "Register"}

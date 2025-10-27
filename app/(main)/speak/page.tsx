@@ -1,18 +1,19 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import Link from "next/link"
-import { Mic, Clock, Users, Sparkles } from "lucide-react"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import Link from "next/link";
+import { Mic, Clock, Users, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: 'Speak at CNSL | Share Your Cloud Native Journey',
-  description: 'Share your knowledge and experience with Sri Lanka\'s cloud-native community. Submit a talk proposal for our monthly meetups.',
-}
+  title: "Speak at CNSL | Share Your Cloud Native Journey",
+  description:
+    "Share your knowledge and experience with Sri Lanka's cloud-native community. Submit a talk proposal for our monthly meetups.",
+};
 
 export default function SpeakPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 section-spacing">
         {/* Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-16">
@@ -20,8 +21,8 @@ export default function SpeakPage() {
             Share Your Cloud Native Journey
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Have a story, project, or lesson learned to share? We'd love to hear from you. 
-            Join our community of speakers at CNSL monthly meetups.
+            Have a story, project, or lesson learned to share? We&apos;d love to hear
+            from you. Join our community of speakers at CNSL monthly meetups.
           </p>
         </div>
 
@@ -37,7 +38,8 @@ export default function SpeakPage() {
                 <h3 className="text-h4 text-white">Lightning Talk</h3>
               </div>
               <p className="text-body text-gray-400 mb-2">
-                <span className="font-semibold text-white">10 minutes</span> — Quick insights, tips, or a single concept
+                <span className="font-semibold text-white">10 minutes</span> —
+                Quick insights, tips, or a single concept
               </p>
               <p className="text-sm text-gray-500">
                 Perfect for beginners or busy professionals
@@ -52,11 +54,10 @@ export default function SpeakPage() {
                 <h3 className="text-h4 text-white">Standard Talk</h3>
               </div>
               <p className="text-body text-gray-400 mb-2">
-                <span className="font-semibold text-white">30 minutes</span> — Technical deep-dive, case study, or demo
+                <span className="font-semibold text-white">30 minutes</span> —
+                Technical deep-dive, case study, or demo
               </p>
-              <p className="text-sm text-gray-500">
-                Our most common format
-              </p>
+              <p className="text-sm text-gray-500">Our most common format</p>
             </div>
 
             <div className="border border-border/50 rounded-lg p-6 bg-card/30">
@@ -67,7 +68,8 @@ export default function SpeakPage() {
                 <h3 className="text-h4 text-white">Workshop</h3>
               </div>
               <p className="text-body text-gray-400 mb-2">
-                <span className="font-semibold text-white">60+ minutes</span> — Hands-on session with exercises
+                <span className="font-semibold text-white">60+ minutes</span> —
+                Hands-on session with exercises
               </p>
               <p className="text-sm text-gray-500">
                 Interactive learning experience
@@ -78,7 +80,9 @@ export default function SpeakPage() {
 
         {/* What We're Looking For */}
         <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-h2 text-white text-center mb-8">What We're Looking For</h2>
+          <h2 className="text-h2 text-white text-center mb-8">
+            What We&apos;re Looking For
+          </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="border-l-4 border-primary pl-6 py-4">
               <h3 className="text-h4 text-white mb-2">Technical Topics</h3>
@@ -109,11 +113,13 @@ export default function SpeakPage() {
           <h2 className="text-h2 text-white text-center mb-8">The Process</h2>
           <div className="relative">
             <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-border/30" />
-            
+
             <div className="space-y-12">
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1 text-right hidden md:block">
-                  <h3 className="text-h4 text-white mb-2">1. Submit Proposal</h3>
+                  <h3 className="text-h4 text-white mb-2">
+                    1. Submit Proposal
+                  </h3>
                   <p className="text-gray-400">
                     Fill out the speaker form with your talk details
                   </p>
@@ -124,7 +130,9 @@ export default function SpeakPage() {
                   </div>
                 </div>
                 <div className="flex-1 md:hidden">
-                  <h3 className="text-h4 text-white mb-2">1. Submit Proposal</h3>
+                  <h3 className="text-h4 text-white mb-2">
+                    1. Submit Proposal
+                  </h3>
                   <p className="text-gray-400">
                     Fill out the speaker form with your talk details
                   </p>
@@ -142,7 +150,8 @@ export default function SpeakPage() {
                 <div className="flex-1">
                   <h3 className="text-h4 text-white mb-2">2. Review Process</h3>
                   <p className="text-gray-400">
-                    Our team reviews and selects talks for upcoming meetups (1-2 weeks)
+                    Our team reviews and selects talks for upcoming meetups (1-2
+                    weeks)
                   </p>
                 </div>
               </div>
@@ -151,7 +160,8 @@ export default function SpeakPage() {
                 <div className="flex-1 text-right hidden md:block">
                   <h3 className="text-h4 text-white mb-2">3. Confirmation</h3>
                   <p className="text-gray-400">
-                    We&#39;ll reach out to schedule your talk and provide support
+                    We&#39;ll reach out to schedule your talk and provide
+                    support
                   </p>
                 </div>
                 <div className="relative z-10">
@@ -162,7 +172,7 @@ export default function SpeakPage() {
                 <div className="flex-1 md:hidden">
                   <h3 className="text-h4 text-white mb-2">3. Confirmation</h3>
                   <p className="text-gray-400">
-                    We'll reach out to schedule your talk and provide support
+                    We&apos;ll reach out to schedule your talk and provide support
                   </p>
                 </div>
                 <div className="flex-1 md:block hidden" />
@@ -178,7 +188,8 @@ export default function SpeakPage() {
                 <div className="flex-1">
                   <h3 className="text-h4 text-white mb-2">4. Present!</h3>
                   <p className="text-gray-400">
-                    Share your knowledge with the community and join our speaker network
+                    Share your knowledge with the community and join our speaker
+                    network
                   </p>
                 </div>
               </div>
@@ -208,7 +219,8 @@ export default function SpeakPage() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-h2 text-white mb-4">Ready to Share?</h2>
           <p className="text-gray-400 mb-8">
-            Submit your talk proposal and we&#39;ll get back to you within 1-2 weeks
+            Submit your talk proposal and we&#39;ll get back to you within 1-2
+            weeks
           </p>
           <Link
             href="/contact?topic=Speaking&ref=speak-page"
@@ -222,7 +234,7 @@ export default function SpeakPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
 
-export const dynamic = 'force-static'
+export const dynamic = "force-static";

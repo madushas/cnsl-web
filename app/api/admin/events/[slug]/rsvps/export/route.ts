@@ -1,129 +1,144 @@
-import 'server-only'
-import { NextRequest, NextResponse } from 'next/server'
-import { db, schema } from '@/db'
-import { and, desc, eq, ilike, or, inArray, sql } from 'drizzle-orm'
-import { requireAdmin } from '@/lib/auth'
-import { handleApiError } from '@/lib/errors'
-import { logger } from '@/lib/logger'
+import "server-only";
+import { NextRequest, NextResponse } from "next/server";
+import { db, schema } from "@/db";
+import { eq, sql } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth";
+import { handleApiError } from "@/lib/errors";
 
 function csvEscape(val: any): string {
-  if (val === null || val === undefined) return ''
-  const s = String(val)
+  if (val === null || val === undefined) return "";
+  const s = String(val);
   // Prevent formula injection in spreadsheet tools
-  const dangerous = /^[=+\-@]/
-  const safe = dangerous.test(s) ? `'${s}` : s
-  if (/[",\n]/.test(safe)) return '"' + safe.replace(/"/g, '""') + '"'
-  return safe
+  const dangerous = /^[=+\-@]/;
+  const safe = dangerous.test(s) ? `'${s}` : s;
+  if (/[",\n]/.test(safe)) return '"' + safe.replace(/"/g, '""') + '"';
+  return safe;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) {
   try {
-    await requireAdmin()
-    const { slug } = await params
-    const { searchParams } = new URL(req.url)
+    await requireAdmin();
+    const { slug } = await params;
+    const { searchParams } = new URL(req.url);
 
-    const q = (searchParams.get('q') || '').trim()
-    const status = (searchParams.get('status') || '').trim()
-    const checkpoint = (searchParams.get('checkpoint') || '').trim()
-    const idsRaw = (searchParams.get('ids') || '').trim()
-    const ids = idsRaw ? idsRaw.split(',').map(s => s.trim()).filter(Boolean) : []
+    const q = (searchParams.get("q") || "").trim();
+    const status = (searchParams.get("status") || "").trim();
+    const checkpoint = (searchParams.get("checkpoint") || "").trim();
+    const idsRaw = (searchParams.get("ids") || "").trim();
+    const ids = idsRaw
+      ? idsRaw
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
 
-    const [event] = await db.select({ id: schema.events.id, title: schema.events.title }).from(schema.events).where(eq(schema.events.slug, slug)).limit(1)
-    if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    const [event] = await db
+      .select({ id: schema.events.id, title: schema.events.title })
+      .from(schema.events)
+      .where(eq(schema.events.slug, slug))
+      .limit(1);
+    if (!event)
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
 
-    const whereClauses: any[] = [eq(schema.rsvps.eventId, event.id)]
-    if (status) whereClauses.push(eq(schema.rsvps.status, status))
-    if (ids.length) whereClauses.push(inArray(schema.rsvps.id, ids))
-    if (q) {
-      const pattern = `%${q}%`
-      whereClauses.push(or(
-        ilike(schema.rsvps.name, pattern),
-        ilike(schema.rsvps.email, pattern),
-        ilike(schema.rsvps.affiliation, pattern),
-        ilike(schema.users.linkedin, pattern),
-        ilike(schema.users.twitter, pattern),
-        ilike(schema.users.github, pattern),
-        ilike(schema.users.website, pattern),
-        ilike(schema.users.company, pattern),
-        ilike(schema.users.title, pattern),
-      ))
+    const conditions: any[] = [sql`rs.event_id = ${event.id}`];
+    if (status) conditions.push(sql`rs.status = ${status}`);
+    if (ids.length) {
+      const idList = sql.join(
+        ids.map((id) => sql`${id}`),
+        sql`, `,
+      );
+      conditions.push(sql`rs.id = ANY(ARRAY[${idList}]::uuid[])`);
     }
-    // Optional checkpoint filter for export
+    if (q) {
+      const pattern = `%${q}%`;
+      conditions.push(sql`(
+        rs.name ILIKE ${pattern} OR
+        rs.email ILIKE ${pattern} OR
+        rs.affiliation ILIKE ${pattern} OR
+        COALESCE(rs.linkedin, '') ILIKE ${pattern} OR
+        COALESCE(rs.twitter, '') ILIKE ${pattern} OR
+        COALESCE(rs.github, '') ILIKE ${pattern} OR
+        COALESCE(rs.website, '') ILIKE ${pattern} OR
+        COALESCE(rs.company, '') ILIKE ${pattern} OR
+        COALESCE(rs.title, '') ILIKE ${pattern}
+      )`);
+    }
     if (checkpoint) {
-      const types = ['entry', 'refreshment', 'swag'] as const
-      const isMissing = checkpoint.startsWith('missing-')
-      const cp = (isMissing ? checkpoint.replace('missing-', '') : checkpoint) as typeof types[number]
+      const types = ["entry", "refreshment", "swag"] as const;
+      const isMissing = checkpoint.startsWith("missing-");
+      const cp = (
+        isMissing ? checkpoint.replace("missing-", "") : checkpoint
+      ) as (typeof types)[number];
       if ((types as readonly string[]).includes(cp)) {
         if (isMissing) {
-          whereClauses.push(sql`NOT EXISTS (
-            SELECT 1 FROM checkpoint_scans sc
-            WHERE sc.rsvp_id = ${schema.rsvps.id}
-              AND sc.event_id = ${event.id}
-              AND sc.checkpoint_type = ${cp}
-          )`)
+          conditions.push(sql`${sql.identifier(cp + "_scanned_at")} IS NULL`);
         } else {
-          whereClauses.push(sql`EXISTS (
-            SELECT 1 FROM checkpoint_scans sc
-            WHERE sc.rsvp_id = ${schema.rsvps.id}
-              AND sc.event_id = ${event.id}
-              AND sc.checkpoint_type = ${cp}
-          )`)
+          conditions.push(
+            sql`${sql.identifier(cp + "_scanned_at")} IS NOT NULL`,
+          );
         }
       }
     }
 
-    const whereExpr = and(...whereClauses)
+    const whereClause = conditions.length
+      ? sql`WHERE ${sql.join(conditions, sql` AND `)}`
+      : sql``;
 
-    const items = await db
-      .select({
-        id: schema.rsvps.id,
-        name: schema.rsvps.name,
-        email: schema.rsvps.email,
-        affiliation: schema.rsvps.affiliation,
-        status: schema.rsvps.status,
-        createdAt: schema.rsvps.createdAt,
-        notifiedAt: schema.rsvps.notifiedAt,
-        ticketNumber: schema.rsvps.ticketNumber,
-        qrCode: schema.rsvps.qrCode,
-        checkedInAt: schema.rsvps.checkedInAt,
-        accountId: schema.rsvps.accountId,
-        profile_linkedin: schema.users.linkedin,
-        profile_twitter: schema.users.twitter,
-        profile_github: schema.users.github,
-        profile_website: schema.users.website,
-        profile_company: schema.users.company,
-        profile_title: schema.users.title,
-        entryAt: sql<Date | null>`(
-          SELECT max(sc.scanned_at) FROM checkpoint_scans sc
-          WHERE sc.rsvp_id = ${schema.rsvps.id}
-            AND sc.event_id = ${event.id}
-            AND sc.checkpoint_type = 'entry'
-        )`,
-        refreshmentAt: sql<Date | null>`(
-          SELECT max(sc.scanned_at) FROM checkpoint_scans sc
-          WHERE sc.rsvp_id = ${schema.rsvps.id}
-            AND sc.event_id = ${event.id}
-            AND sc.checkpoint_type = 'refreshment'
-        )`,
-        swagAt: sql<Date | null>`(
-          SELECT max(sc.scanned_at) FROM checkpoint_scans sc
-          WHERE sc.rsvp_id = ${schema.rsvps.id}
-            AND sc.event_id = ${event.id}
-            AND sc.checkpoint_type = 'swag'
-        )`,
-      })
-      .from(schema.rsvps)
-      .leftJoin(schema.users, eq(schema.users.authUserId, schema.rsvps.accountId))
-      .where(whereExpr)
-      .orderBy(desc(schema.rsvps.createdAt))
+    const query = sql`
+      SELECT
+        rs.id,
+        rs.name,
+        rs.email,
+        rs.affiliation,
+        rs.status,
+        rs.created_at,
+        rs.notified_at,
+        rs.ticket_number,
+        rs.qr_code,
+        rs.checked_in_at,
+        rs.account_id,
+        rs.linkedin,
+        rs.twitter,
+        rs.github,
+        rs.website,
+        rs.company,
+        rs.title,
+        rs.entry_scanned_at,
+        rs.refreshment_scanned_at,
+        rs.swag_scanned_at
+      FROM rsvp_search rs
+      ${whereClause}
+      ORDER BY rs.created_at DESC
+    `;
+
+    const { rows: items } = await db.execute(query);
 
     const headers = [
-      'id','name','email','affiliation','status','ticketNumber','qrCode','checkedInAt','createdAt',
-      'entryAt','refreshmentAt','swagAt',
-      'accountId','linkedin','twitter','github','website','company','title'
-    ]
-    const lines: string[] = []
-    lines.push(headers.join(','))
+      "id",
+      "name",
+      "email",
+      "affiliation",
+      "status",
+      "ticketNumber",
+      "qrCode",
+      "checkedInAt",
+      "createdAt",
+      "entryAt",
+      "refreshmentAt",
+      "swagAt",
+      "accountId",
+      "linkedin",
+      "twitter",
+      "github",
+      "website",
+      "company",
+      "title",
+    ];
+    const lines: string[] = [];
+    lines.push(headers.join(","));
     for (const it of items) {
       const row = [
         it.id,
@@ -131,35 +146,41 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         it.email,
         it.affiliation,
         it.status,
-        it.ticketNumber,
-        it.qrCode,
-        it.checkedInAt ? new Date(it.checkedInAt as any).toISOString() : '',
-        it.createdAt ? new Date(it.createdAt as any).toISOString() : '',
-        it.entryAt ? new Date(it.entryAt as any).toISOString() : '',
-        it.refreshmentAt ? new Date(it.refreshmentAt as any).toISOString() : '',
-        it.swagAt ? new Date(it.swagAt as any).toISOString() : '',
-        it.accountId,
-        it.profile_linkedin,
-        it.profile_twitter,
-        it.profile_github,
-        it.profile_website,
-        it.profile_company,
-        it.profile_title,
-      ].map(csvEscape)
-      lines.push(row.join(','))
+        it.ticket_number,
+        it.qr_code,
+        it.checked_in_at ? new Date(it.checked_in_at as any).toISOString() : "",
+        it.created_at ? new Date(it.created_at as any).toISOString() : "",
+        it.entry_scanned_at
+          ? new Date(it.entry_scanned_at as any).toISOString()
+          : "",
+        it.refreshment_scanned_at
+          ? new Date(it.refreshment_scanned_at as any).toISOString()
+          : "",
+        it.swag_scanned_at
+          ? new Date(it.swag_scanned_at as any).toISOString()
+          : "",
+        it.account_id,
+        it.linkedin,
+        it.twitter,
+        it.github,
+        it.website,
+        it.company,
+        it.title,
+      ].map(csvEscape);
+      lines.push(row.join(","));
     }
-    const csv = lines.join('\n')
+    const csv = lines.join("\n");
 
-    const filename = `rsvps-${slug}-${Date.now()}.csv`
+    const filename = `rsvps-${slug}-${Date.now()}.csv`;
     return new NextResponse(csv, {
       status: 200,
       headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="${filename}"`,
-        'Cache-Control': 'no-store',
-      }
-    })
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (e: any) {
-    return handleApiError(e)
+    return handleApiError(e);
   }
 }

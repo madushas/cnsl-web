@@ -69,26 +69,25 @@ export default function CNSLConnectPage() {
                 </div>
                 <h3 className="text-h4 text-white">For Mentees</h3>
               </div>
-        export const dynamic = 'force-static'
               <p className="text-gray-400 mb-4">
                 Get personalized guidance from experienced professionals to
                 accelerate your cloud-native journey
               </p>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>1-on-1 mentorship sessions</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Career guidance & skill development</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Project feedback & code reviews</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Industry insights & best practices</span>
                 </li>
               </ul>
@@ -107,19 +106,19 @@ export default function CNSLConnectPage() {
               </p>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Make a meaningful impact</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Build your professional brand</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Expand your network</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Stay current with new perspectives</span>
                 </li>
               </ul>
@@ -133,24 +132,24 @@ export default function CNSLConnectPage() {
                 <h3 className="text-h4 text-white">For Community</h3>
               </div>
               <p className="text-gray-400 mb-4">
-                Strengthen Sri Lanka&#39;s cloud-native ecosystem through knowledge
-                sharing and collaboration
+                Strengthen Sri Lanka&#39;s cloud-native ecosystem through
+                knowledge sharing and collaboration
               </p>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Bridge industry-academia gap</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Build local talent pipeline</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Foster collaboration culture</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <span>Accelerate skill development</span>
                 </li>
               </ul>
@@ -208,14 +207,14 @@ export default function CNSLConnectPage() {
               <h3 className="text-h3 text-white mb-4">Program Structure</h3>
               <div className="space-y-3 text-gray-400">
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <Calendar className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <div className="font-semibold text-white">Duration</div>
                     <div className="text-sm">3 months per cohort</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <Users className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <div className="font-semibold text-white">Sessions</div>
                     <div className="text-sm">
@@ -224,7 +223,7 @@ export default function CNSLConnectPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Target className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <Target className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <div className="font-semibold text-white">Focus Areas</div>
                     <div className="text-sm">
@@ -233,7 +232,7 @@ export default function CNSLConnectPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Award className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <Award className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <div className="font-semibold text-white">Recognition</div>
                     <div className="text-sm">

@@ -47,7 +47,7 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
         (e) =>
           e.title.toLowerCase().includes(query) ||
           e.description?.toLowerCase().includes(query) ||
-          e.venue?.toLowerCase().includes(query)
+          e.venue?.toLowerCase().includes(query),
       );
     }
 
@@ -57,7 +57,7 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
     }
 
     // Split by time
-    const now = Date.now();
+    const now = new Date().getTime();
     const upcoming = filtered
       .filter((e) => new Date(e.date).getTime() >= now)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -69,9 +69,7 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
   }, [events, searchQuery, selectedCity]);
 
   const displayEvents =
-    activeTab === "upcoming"
-      ? filteredEvents.upcoming
-      : filteredEvents.past;
+    activeTab === "upcoming" ? filteredEvents.upcoming : filteredEvents.past;
 
   const featuredEvent = displayEvents[0];
   const regularEvents = displayEvents.slice(1);
@@ -178,7 +176,7 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
               className="block group"
             >
               <div className="grid md:grid-cols-2 gap-6 border border-border rounded-xl overflow-hidden hover:border-primary transition-colors bg-card">
-                <div className="relative aspect-[16/10] md:aspect-auto">
+                <div className="relative aspect-16/10 md:aspect-auto">
                   <Image
                     src={featuredEvent.image ?? "/event-flyer-placeholder.svg"}
                     alt={featuredEvent.title}
@@ -195,10 +193,13 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       <time dateTime={featuredEvent.date}>
-                        {new Date(featuredEvent.date).toLocaleString(undefined, {
-                          dateStyle: "full",
-                          timeStyle: "short",
-                        })}
+                        {new Date(featuredEvent.date).toLocaleString(
+                          undefined,
+                          {
+                            dateStyle: "full",
+                            timeStyle: "short",
+                          },
+                        )}
                       </time>
                     </div>
                     {(featuredEvent.venue || featuredEvent.city) && (
@@ -215,7 +216,9 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
                       <Users className="h-4 w-4" />
                       <span>
                         {featuredEvent.registered}/
-                        {featuredEvent.capacity > 0 ? featuredEvent.capacity : "∞"}{" "}
+                        {featuredEvent.capacity > 0
+                          ? featuredEvent.capacity
+                          : "∞"}{" "}
                         registered
                       </span>
                     </div>
@@ -247,14 +250,14 @@ export function EventsModernLayout({ events }: { events: EventItem[] }) {
 
 function EventCard({ event }: { event: EventItem }) {
   const isFull = event.capacity > 0 && event.registered >= event.capacity;
-  const isPast = new Date(event.date).getTime() < Date.now();
+  const isPast = new Date(event.date).getTime() < new Date().getTime();
 
   return (
     <Link
       href={`/events/${event.slug}`}
       className="block group border border-border rounded-xl overflow-hidden hover:border-primary transition-colors bg-card"
     >
-      <div className="relative aspect-[16/10]">
+      <div className="relative aspect-16/10">
         <Image
           src={event.image ?? "/event-flyer-placeholder.svg"}
           alt={event.title}

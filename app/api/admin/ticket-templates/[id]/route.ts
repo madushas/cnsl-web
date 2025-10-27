@@ -2,18 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { ticketTemplates } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { getSessionUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 // GET - Get a specific template
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin();
 
     const { id } = await params;
     const [template] = await db
@@ -23,7 +20,10 @@ export async function GET(
       .limit(1);
 
     if (!template) {
-      return NextResponse.json({ error: "Template not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Template not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -34,7 +34,7 @@ export async function GET(
     console.error("[GET /api/admin/ticket-templates/:id]", error);
     return NextResponse.json(
       { error: "Failed to fetch template" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,17 +42,21 @@ export async function GET(
 // PATCH - Update a template
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin();
 
     const { id } = await params;
     const body = await request.json();
-    const { name, eventId, backgroundImage, qrConfig, textOverlays, isDefault } = body;
+    const {
+      name,
+      eventId,
+      backgroundImage,
+      qrConfig,
+      textOverlays,
+      isDefault,
+    } = body;
 
     // If this is set as default, unset other defaults for this event
     if (isDefault && eventId) {
@@ -62,22 +66,29 @@ export async function PATCH(
         .where(eq(ticketTemplates.eventId, eventId));
     }
 
+    // Build update object with all provided fields
+    const updateData: any = {
+      updatedAt: new Date(),
+    };
+    
+    if (name !== undefined) updateData.name = name;
+    if (eventId !== undefined) updateData.eventId = eventId;
+    if (backgroundImage !== undefined) updateData.backgroundImage = backgroundImage;
+    if (qrConfig !== undefined) updateData.qrConfig = qrConfig;
+    if (textOverlays !== undefined) updateData.textOverlays = textOverlays;
+    if (isDefault !== undefined) updateData.isDefault = isDefault;
+
     const [template] = await db
       .update(ticketTemplates)
-      .set({
-        ...(name && { name }),
-        ...(eventId !== undefined && { eventId }),
-        ...(backgroundImage && { backgroundImage }),
-        ...(qrConfig && { qrConfig }),
-        ...(textOverlays && { textOverlays }),
-        ...(isDefault !== undefined && { isDefault }),
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(ticketTemplates.id, id))
       .returning();
 
     if (!template) {
-      return NextResponse.json({ error: "Template not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Template not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -88,7 +99,7 @@ export async function PATCH(
     console.error("[PATCH /api/admin/ticket-templates/:id]", error);
     return NextResponse.json(
       { error: "Failed to update template" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -96,13 +107,10 @@ export async function PATCH(
 // DELETE - Delete a template
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin();
 
     const { id } = await params;
     await db.delete(ticketTemplates).where(eq(ticketTemplates.id, id));
@@ -115,7 +123,7 @@ export async function DELETE(
     console.error("[DELETE /api/admin/ticket-templates/:id]", error);
     return NextResponse.json(
       { error: "Failed to delete template" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

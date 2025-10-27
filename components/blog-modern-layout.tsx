@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Clock, Search, X } from "lucide-react";
+import { Calendar, Search, X } from "lucide-react";
 
 type PostItem = {
   slug: string;
@@ -26,7 +26,7 @@ export function BlogModernLayout({ posts }: { posts: PostItem[] }) {
   // Get unique categories
   const categories = useMemo(() => {
     const categorySet = new Set(
-      posts.map((p) => p.category || "General").filter(Boolean)
+      posts.map((p) => p.category || "General").filter(Boolean),
     );
     return Array.from(categorySet) as string[];
   }, [posts]);
@@ -42,7 +42,7 @@ export function BlogModernLayout({ posts }: { posts: PostItem[] }) {
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.excerpt?.toLowerCase().includes(query) ||
-          p.category?.toLowerCase().includes(query)
+          p.category?.toLowerCase().includes(query),
       );
     }
 
@@ -53,7 +53,7 @@ export function BlogModernLayout({ posts }: { posts: PostItem[] }) {
 
     return filtered.sort(
       (a, b) =>
-        new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+        new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
     );
   }, [posts, searchQuery, selectedCategory]);
 
@@ -127,10 +127,7 @@ export function BlogModernLayout({ posts }: { posts: PostItem[] }) {
         <div className="space-y-8">
           {/* Featured Post - Hero Card */}
           {featuredPost && (
-            <Link
-              href={`/blog/${featuredPost.slug}`}
-              className="block group"
-            >
+            <Link href={`/blog/${featuredPost.slug}`} className="block group">
               <article className="grid md:grid-cols-5 gap-6 border border-border rounded-xl overflow-hidden hover:border-primary transition-colors bg-card">
                 <div className="relative aspect-[16/10] md:aspect-auto md:col-span-3">
                   <Image
@@ -160,7 +157,7 @@ export function BlogModernLayout({ posts }: { posts: PostItem[] }) {
                         <time dateTime={featuredPost.date}>
                           {new Date(featuredPost.date).toLocaleDateString(
                             undefined,
-                            { month: "short", day: "numeric", year: "numeric" }
+                            { month: "short", day: "numeric", year: "numeric" },
                           )}
                         </time>
                       </div>
@@ -195,7 +192,7 @@ function BlogCard({ post }: { post: PostItem }) {
       className="block group border border-border rounded-xl overflow-hidden hover:border-primary transition-colors bg-card"
     >
       <article>
-        <div className="relative aspect-[16/10]">
+        <div className="relative aspect-16/10">
           <Image
             src={post.image ?? "/cnsl-placeholder.svg"}
             alt={post.title}
@@ -225,9 +222,7 @@ function BlogCard({ post }: { post: PostItem }) {
                 </time>
               </div>
             )}
-            {post.author && (
-              <span className="font-medium">{post.author}</span>
-            )}
+            {post.author && <span className="font-medium">{post.author}</span>}
           </div>
         </div>
       </article>

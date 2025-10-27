@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import React, { useEffect, useMemo, useState, useTransition } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -102,7 +102,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
 
   // Debounce search to avoid heavy re-renders
   const debouncedQ = useDebounced(q, 300);
-  const [isPending, startTransition] = useTransition();
+
 
   // Pagination
   const PAGE_SIZE = 6;
@@ -136,23 +136,28 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
       )
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Reset visible count when filters change (non-blocking)
-    startTransition(() => setVisibleCount(PAGE_SIZE));
     return out;
   }, [city, topic, debouncedQ, events]);
 
+
+
   // Filtered upcoming and past
   const filteredUpcoming = useMemo(
-    () => filtered.filter((e) => new Date(e.date).getTime() >= Date.now()),
+    () => {
+      const now = new Date().getTime();
+      return filtered.filter((e) => new Date(e.date).getTime() >= now);
+    },
     [filtered],
   );
   const filteredPast = useMemo(
-    () =>
-      filtered
-        .filter((e) => new Date(e.date).getTime() < Date.now())
+    () => {
+      const now = new Date().getTime();
+      return filtered
+        .filter((e) => new Date(e.date).getTime() < now)
         .sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-        ),
+        );
+    },
     [filtered],
   );
 
@@ -160,8 +165,9 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
 
   // Next up (first upcoming event from all events, not filtered)
   const nextUp = useMemo(() => {
+    const now = new Date().getTime();
     const sorted = [...events]
-      .filter((e) => new Date(e.date).getTime() >= Date.now())
+      .filter((e) => new Date(e.date).getTime() >= now)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return sorted[0] || null;
   }, [events]);
@@ -216,7 +222,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
           {/* Next Up */}
           {nextUp && (
             <Card className="bg-card border-border overflow-hidden">
-              <div className="relative aspect-[16/9] w-full border-b border-border">
+              <div className="relative aspect-video w-full border-b border-border">
                 <Image
                   src={nextUp.image || "/event-flyer-placeholder.svg"}
                   alt={`${nextUp.title} flyer`}
@@ -286,7 +292,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
                 </label>
                 <Select
                   value={city}
-                  onValueChange={(v) => startTransition(() => setCity(v))}
+                  onValueChange={(v) => setCity(v)}
                 >
                   <SelectTrigger className="bg-surface-subtle border-border text-foreground">
                     <SelectValue placeholder="City" />
@@ -307,7 +313,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
                 </label>
                 <Select
                   value={topic}
-                  onValueChange={(v) => startTransition(() => setTopic(v))}
+                  onValueChange={(v) => setTopic(v)}
                 >
                   <SelectTrigger className="bg-surface-subtle border-border text-foreground">
                     <SelectValue placeholder="Topic" />
@@ -341,13 +347,11 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
 
               <div className="flex gap-2 pt-2">
                 <Button
-                  onClick={() =>
-                    startTransition(() => {
-                      setCity("All");
-                      setTopic("All");
-                      setQ("");
-                    })
-                  }
+                  onClick={() => {
+                    setCity("All");
+                    setTopic("All");
+                    setQ("");
+                  }}
                   variant="outline"
                   className="flex-1"
                   aria-label="Reset filters"
@@ -427,7 +431,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
                         aria-labelledby={`event-${e.id}-title`}
                         className="group overflow-hidden bg-card border-border transition-card hover:shadow-card-hover hover:-translate-y-1"
                       >
-                        <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-border">
+                        <div className="relative aspect-video w-full overflow-hidden border-b border-border">
                           <Image
                             src={e.image ?? "/event-flyer-placeholder.svg"}
                             alt={e.title}
@@ -518,7 +522,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
                                 aria-label={`Registration ${fill}%`}
                               />
                             </div>
-                            <div className="flex-shrink-0 flex items-center gap-2">
+                            <div className="shrink-0 flex items-center gap-2">
                               <Button asChild size="sm">
                                 <Link href={`/events/${e.slug}`}>
                                   {isFull ? "View" : "Register"}
@@ -580,7 +584,7 @@ export function EventsClientFilter({ events }: { events: EventItem[] }) {
                     aria-labelledby={`past-event-${e.id}-title`}
                     className="group overflow-hidden bg-card border-border transition-card hover:shadow-card-hover hover:-translate-y-1"
                   >
-                    <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-border">
+                    <div className="relative aspect-video w-full overflow-hidden border-b border-border">
                       <Image
                         src={e.image ?? "/event-flyer-placeholder.svg"}
                         alt={e.title}

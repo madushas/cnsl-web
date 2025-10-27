@@ -15,11 +15,14 @@ export type BlogCardProps = {
 
 export function BlogCardCompact({ post }: { post: BlogCardProps }) {
   return (
-    <article className="group card-compact h-full flex flex-col" aria-labelledby={`post-${post.slug}-title`}>
+    <article
+      className="group card-compact h-full flex flex-col"
+      aria-labelledby={`post-${post.slug}-title`}
+    >
       <Link href={`/blog/${post.slug}`} className="flex flex-col h-full">
         {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="relative aspect-4/3 overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-t from-background/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Image
             src={post.image || "/cnsl-placeholder.svg"}
             alt={post.title}
@@ -28,16 +31,16 @@ export function BlogCardCompact({ post }: { post: BlogCardProps }) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {/* Category badge */}
-          <Badge 
-            variant="default" 
+          <Badge
+            variant="default"
             className="absolute left-3 top-3 z-20 shadow-sm text-xs"
           >
             {post.category || "General"}
           </Badge>
           {/* Featured badge */}
           {post.isFeatured && (
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className="absolute right-3 top-3 z-20 shadow-sm text-xs"
             >
               Featured
@@ -54,10 +57,11 @@ export function BlogCardCompact({ post }: { post: BlogCardProps }) {
           >
             {post.title}
           </h3>
-          
+
           {/* Meta */}
           <div className="text-xs text-muted-foreground">
-            {post.date && new Date(post.date).toLocaleDateString()} · {post.author || "CNSL"}
+            {post.date && new Date(post.date).toLocaleDateString()} ·{" "}
+            {post.author || "CNSL"}
           </div>
 
           {/* Excerpt */}

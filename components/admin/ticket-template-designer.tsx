@@ -4,7 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -13,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Download, Save, Plus, Trash2, Move } from "lucide-react";
+import { Upload, Download, Save, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   generateTicket,
@@ -26,7 +32,7 @@ import {
 
 type TemplateDesignerProps = {
   eventId?: string;
-  onSave?: (template: TicketTemplate) => Promise<void>;
+  onSaveAction?: (template: TicketTemplate) => Promise<void>;
   initialTemplate?: Partial<TicketTemplate>;
 };
 
@@ -40,17 +46,16 @@ const SAMPLE_DATA = {
 };
 
 export default function TicketTemplateDesigner({
-  eventId,
-  onSave,
+  onSaveAction: onSave,
   initialTemplate,
 }: TemplateDesignerProps) {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [templateName, setTemplateName] = useState(initialTemplate?.name || "");
   const [backgroundImage, setBackgroundImage] = useState<string>(
-    initialTemplate?.backgroundImage || ""
+    initialTemplate?.backgroundImage || "",
   );
   const [qrConfig, setQRConfig] = useState<QRConfig>(
     initialTemplate?.qrConfig || {
@@ -58,7 +63,7 @@ export default function TicketTemplateDesigner({
       y: 50,
       size: 200,
       errorCorrectionLevel: "H",
-    }
+    },
   );
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>(
     initialTemplate?.textOverlays || [
@@ -71,20 +76,18 @@ export default function TicketTemplateDesigner({
         color: "#000000",
         align: "left",
       },
-    ]
+    ],
   );
-  
+
   const [selectedOverlay, setSelectedOverlay] = useState<number>(0);
-  const [isDraggingQR, setIsDraggingQR] = useState(false);
-  const [isDraggingText, setIsDraggingText] = useState(false);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  
+
   // Handle background image upload
   const handleBackgroundUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith("image/")) {
       toast({
         title: "Invalid file",
@@ -93,7 +96,7 @@ export default function TicketTemplateDesigner({
       });
       return;
     }
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
@@ -101,7 +104,7 @@ export default function TicketTemplateDesigner({
     };
     reader.readAsDataURL(file);
   };
-  
+
   // Generate preview
   const generatePreview = async () => {
     if (!backgroundImage) {
@@ -112,7 +115,7 @@ export default function TicketTemplateDesigner({
       });
       return;
     }
-    
+
     setIsGenerating(true);
     try {
       const template: TicketTemplate = {
@@ -122,10 +125,10 @@ export default function TicketTemplateDesigner({
         qrConfig,
         textOverlays,
       };
-      
+
       const blob = await generateTicket(template, SAMPLE_DATA, "png");
       setPreviewBlob(blob);
-      
+
       // Draw on canvas for visual feedback
       const img = await loadImage(URL.createObjectURL(blob));
       const canvas = canvasRef.current;
@@ -137,7 +140,7 @@ export default function TicketTemplateDesigner({
           ctx.drawImage(img, 0, 0);
         }
       }
-      
+
       toast({
         title: "Preview generated",
         description: "Preview updated successfully",
@@ -153,7 +156,7 @@ export default function TicketTemplateDesigner({
       setIsGenerating(false);
     }
   };
-  
+
   // Auto-generate preview when config changes
   useEffect(() => {
     if (backgroundImage) {
@@ -163,7 +166,7 @@ export default function TicketTemplateDesigner({
       return () => clearTimeout(timer);
     }
   }, [backgroundImage, qrConfig, textOverlays]);
-  
+
   // Add text overlay
   const addTextOverlay = () => {
     setTextOverlays([
@@ -179,7 +182,7 @@ export default function TicketTemplateDesigner({
       },
     ]);
   };
-  
+
   // Remove text overlay
   const removeTextOverlay = (index: number) => {
     setTextOverlays(textOverlays.filter((_, i) => i !== index));
@@ -187,16 +190,16 @@ export default function TicketTemplateDesigner({
       setSelectedOverlay(Math.max(0, textOverlays.length - 2));
     }
   };
-  
+
   // Update text overlay
   const updateTextOverlay = (index: number, updates: Partial<TextOverlay>) => {
     setTextOverlays(
       textOverlays.map((overlay, i) =>
-        i === index ? { ...overlay, ...updates } : overlay
-      )
+        i === index ? { ...overlay, ...updates } : overlay,
+      ),
     );
   };
-  
+
   // Save template
   const handleSave = async () => {
     if (!templateName.trim()) {
@@ -225,38 +228,89 @@ export default function TicketTemplateDesigner({
       textOverlays,
     };
 
-    console.log("[TicketTemplateDesigner] Saving template:", template);
+    // Show loading state
+    toast({
+      title: initialTemplate?.id ? "Updating template..." : "Saving template...",
+      description: initialTemplate?.id 
+        ? "Please wait while we update your template"
+        : "Please wait while we save your template",
+    });
+
     try {
-      let responseJson = null;
-      const res = await fetch("/api/admin/ticket-templates", {
-        method: "POST",
+      console.debug("[TicketTemplateDesigner] Saving template", {
+        id: template.id,
+        name: template.name,
+      });
+
+      const endpoint = initialTemplate?.id 
+        ? `/api/admin/ticket-templates/${initialTemplate.id}`
+        : "/api/admin/ticket-templates";
+      const method = initialTemplate?.id ? "PATCH" : "POST";
+      
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(template),
       });
+
+      let responseJson = null;
       try {
         responseJson = await res.json();
       } catch (err) {
-        console.error("[TicketTemplateDesigner] Error parsing save response:", err);
+        console.error(
+          "[TicketTemplateDesigner] Error parsing save response:",
+          err instanceof Error ? err.message : String(err),
+        );
       }
+
+      // Loading toast will auto-dismiss
+
       if (!res.ok) {
-        console.error("[TicketTemplateDesigner] Save failed:", res.status, responseJson);
-        throw new Error("Failed to save template: " + (responseJson?.error || res.status));
+        console.error(
+          "[TicketTemplateDesigner] Save failed:",
+          res.status,
+          responseJson?.error ?? null,
+        );
+        throw new Error(
+          responseJson?.error || `HTTP ${res.status}: Failed to save template`,
+        );
       }
-      console.log("[TicketTemplateDesigner] Save response:", responseJson);
+
+      // Show success message
       toast({
-        title: "Template saved",
-        description: "Your template has been saved successfully",
+        title: initialTemplate?.id ? "Template updated" : "Template saved",
+        description: initialTemplate?.id 
+          ? "Your template has been updated successfully"
+          : "Your template has been saved successfully",
+        duration: 3000, // Show for 3 seconds
       });
+
+      // Notify parent (if provided) so UI can close/refresh
+      if (typeof onSave === "function") {
+        try {
+          await onSave(responseJson?.template || template);
+        } catch (e) {
+          console.error(
+            "[TicketTemplateDesigner] onSave handler threw:",
+            e instanceof Error ? e.message : String(e),
+          );
+        }
+      }
     } catch (error) {
-      console.error("Save failed:", error);
+      // Loading toast will auto-dismiss on error
+      
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      console.error("Save failed:", errorMessage);
+      
       toast({
         title: "Save failed",
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: errorMessage,
         variant: "destructive",
+        duration: 5000, // Show error for 5 seconds
       });
     }
   };
-  
+
   // Download preview
   const handleDownloadPreview = () => {
     if (!previewBlob) {
@@ -267,10 +321,10 @@ export default function TicketTemplateDesigner({
       });
       return;
     }
-    
+
     downloadBlob(previewBlob, `ticket-preview-${Date.now()}.png`);
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Template Info */}
@@ -291,7 +345,7 @@ export default function TicketTemplateDesigner({
               placeholder="e.g., Default Event Ticket"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="background-upload">Background Image</Label>
             <div className="flex gap-2">
@@ -318,7 +372,7 @@ export default function TicketTemplateDesigner({
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Main Layout */}
       <div className="grid gap-6 lg:grid-cols-[1fr,400px]">
         {/* Preview Canvas */}
@@ -345,7 +399,7 @@ export default function TicketTemplateDesigner({
                 </div>
               )}
             </div>
-            
+
             {backgroundImage && (
               <div className="flex gap-2 mt-4">
                 <Button
@@ -367,7 +421,7 @@ export default function TicketTemplateDesigner({
             )}
           </CardContent>
         </Card>
-        
+
         {/* Configuration Panel */}
         <Card>
           <CardHeader>
@@ -379,7 +433,7 @@ export default function TicketTemplateDesigner({
                 <TabsTrigger value="qr">QR Code</TabsTrigger>
                 <TabsTrigger value="text">Text Overlays</TabsTrigger>
               </TabsList>
-              
+
               {/* QR Config */}
               <TabsContent value="qr" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -404,7 +458,7 @@ export default function TicketTemplateDesigner({
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <Label>Size (px)</Label>
                   <Input
@@ -417,7 +471,7 @@ export default function TicketTemplateDesigner({
                     max={512}
                   />
                 </div>
-                
+
                 <div>
                   <Label>Error Correction</Label>
                   <Select
@@ -438,7 +492,7 @@ export default function TicketTemplateDesigner({
                   </Select>
                 </div>
               </TabsContent>
-              
+
               {/* Text Overlays Config */}
               <TabsContent value="text" className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -448,10 +502,10 @@ export default function TicketTemplateDesigner({
                     Add
                   </Button>
                 </div>
-                
+
                 {textOverlays.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">
-                    No text overlays yet. Click "Add" to create one.
+                    No text overlays yet. Click &quot;Add&quot; to create one.
                   </p>
                 ) : (
                   <div className="space-y-4">
@@ -471,7 +525,7 @@ export default function TicketTemplateDesigner({
                         ))}
                       </SelectContent>
                     </Select>
-                    
+
                     {/* Selected Overlay Config */}
                     {textOverlays[selectedOverlay] && (
                       <div className="space-y-3 border rounded-lg p-4">
@@ -488,15 +542,21 @@ export default function TicketTemplateDesigner({
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="name">Name</SelectItem>
-                              <SelectItem value="ticketNumber">Ticket Number</SelectItem>
+                              <SelectItem value="ticketNumber">
+                                Ticket Number
+                              </SelectItem>
                               <SelectItem value="email">Email</SelectItem>
-                              <SelectItem value="eventTitle">Event Title</SelectItem>
-                              <SelectItem value="eventDate">Event Date</SelectItem>
+                              <SelectItem value="eventTitle">
+                                Event Title
+                              </SelectItem>
+                              <SelectItem value="eventDate">
+                                Event Date
+                              </SelectItem>
                               <SelectItem value="venue">Venue</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label>X</Label>
@@ -523,7 +583,7 @@ export default function TicketTemplateDesigner({
                             />
                           </div>
                         </div>
-                        
+
                         <div>
                           <Label>Font Size</Label>
                           <Input
@@ -538,7 +598,7 @@ export default function TicketTemplateDesigner({
                             max={200}
                           />
                         </div>
-                        
+
                         <div>
                           <Label>Color</Label>
                           <div className="flex gap-2">
@@ -564,7 +624,7 @@ export default function TicketTemplateDesigner({
                             />
                           </div>
                         </div>
-                        
+
                         <Button
                           variant="destructive"
                           size="sm"
@@ -583,10 +643,14 @@ export default function TicketTemplateDesigner({
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Actions */}
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={generatePreview} disabled={isGenerating}>
+        <Button
+          variant="outline"
+          onClick={generatePreview}
+          disabled={isGenerating}
+        >
           Refresh Preview
         </Button>
         <Button onClick={handleSave}>

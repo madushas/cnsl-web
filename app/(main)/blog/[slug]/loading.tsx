@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -9,13 +9,13 @@ export default function Loading() {
           <Skeleton className="h-10 w-3/4 bg-white/10" />
           <Skeleton className="h-4 w-1/2 bg-white/10" />
         </div>
-        <Skeleton className="aspect-[16/9] w-full rounded-xl bg-white/10" />
+        <Skeleton className="aspect-video w-full rounded-xl bg-white/10" />
         <div className="space-y-3">
-          {[0,1,2,3].map(i => (
+          {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-4 w-full bg-white/10" />
           ))}
         </div>
       </div>
     </div>
-  )
+  );
 }

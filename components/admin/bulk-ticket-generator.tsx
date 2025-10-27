@@ -19,19 +19,21 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Ticket, Download } from "lucide-react";
+import { Ticket } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   generateTicketsBatch,
-  downloadBlob,
+  generateTicketsBatchWithCDN,
   type TicketTemplate,
   type TicketData,
 } from "@/lib/ticket-generator";
+import Image from "next/image";
 
 type RSVP = {
   id: string;
   name: string;
   email: string;
+  status: string;
   ticketNumber?: string;
   ticketImageUrl?: string;
 };
@@ -71,17 +73,31 @@ export default function BulkTicketGenerator({
 
   const loadTemplates = async () => {
     try {
-      const res = await fetch(`/api/admin/ticket-templates?eventId=${eventId}`);
+      // Fetch all templates (global + event-specific) with no cache to ensure fresh data
+      const res = await fetch("/api/admin/ticket-templates", {
+        cache: "no-store",
+      });
       const data = await res.json();
-      
+
       if (data.success) {
-        setTemplates(data.templates);
+        const allTemplates = data.templates || [];
+        setTemplates(allTemplates);
+
         // Auto-select default template
-        const defaultTemplate = data.templates.find((t: any) => t.isDefault);
+        const defaultTemplate = allTemplates.find((t: any) => t.isDefault);
         if (defaultTemplate) {
           setSelectedTemplateId(defaultTemplate.id);
-        } else if (data.templates.length > 0) {
-          setSelectedTemplateId(data.templates[0].id);
+        } else if (allTemplates.length > 0) {
+          setSelectedTemplateId(allTemplates[0].id);
+        }
+
+        if (allTemplates.length === 0) {
+          toast({
+            title: "No templates found",
+            description:
+              "Please create a ticket template first in Ticket Templates page",
+            variant: "destructive",
+          });
         }
       }
     } catch (error) {
@@ -119,10 +135,12 @@ export default function BulkTicketGenerator({
         (processed: number, total: number) => {
           setProgress((processed / total) * 100);
         },
-        "png"
+        "png",
       );
 
-      const urls = Array.from(blobs.values()).map((blob) => URL.createObjectURL(blob));
+      const urls = Array.from(blobs.values()).map((blob) =>
+        URL.createObjectURL(blob),
+      );
       setPreviewUrls(urls);
       setCurrentStep("");
     } catch (error) {
@@ -143,41 +161,64 @@ export default function BulkTicketGenerator({
     }
   }, [selectedTemplateId]);
 
-  // Upload blob to CDN (mock - replace with actual CDN upload)
+  // Upload blob to CDN using Cloudinary
   const uploadBlob = async (blob: Blob, filename: string): Promise<string> => {
-    // TODO: Replace with actual CDN upload logic
-    // For now, convert to data URL (not recommended for production)
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.readAsDataURL(blob);
-    });
+    try {
+      // Extract ticket number from filename for CDN naming
+      const ticketNumber = filename.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+      
+      // Use the new CDN upload function
+      const { uploadTicketImage } = await import('@/lib/cloudinary-upload');
+      return await uploadTicketImage(blob, ticketNumber);
+    } catch (error) {
+      console.warn('CDN upload failed, falling back to data URL:', error);
+      // Fallback to data URL if CDN upload fails
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      });
+    }
   };
 
   // Batch update RSVPs with ticket URLs
-  const batchUpdateRSVPs = async (updates: { id: string; ticketImageUrl: string }[]) => {
-    console.log("[BulkTicketGenerator] Sending batch update payload:", updates);
-    const res = await fetch(`/api/admin/events/${eventId}/rsvps/batch-update-tickets`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ updates }),
-    });
+  const batchUpdateRSVPs = async (
+    updates: { id: string; ticketImageUrl: string }[],
+  ) => {
+    // debug log removed: Sending batch update payload
+    const res = await fetch(
+      `/api/admin/events/${eventId}/rsvps/batch-update-tickets`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updates }),
+      },
+    );
 
     let responseJson = null;
     try {
       responseJson = await res.json();
     } catch (err) {
-      console.error("[BulkTicketGenerator] Error parsing batch update response:", err);
+      console.error(
+        "[BulkTicketGenerator] Error parsing batch update response:",
+        err,
+      );
     }
 
     if (!res.ok) {
-      console.error("[BulkTicketGenerator] Batch update failed:", res.status, responseJson);
-      throw new Error("Failed to update RSVPs: " + (responseJson?.error || res.status));
+      console.error(
+        "[BulkTicketGenerator] Batch update failed:",
+        res.status,
+        responseJson,
+      );
+      throw new Error(
+        "Failed to update RSVPs: " + (responseJson?.error || res.status),
+      );
     }
 
-    console.log("[BulkTicketGenerator] Batch update response:", responseJson);
+    // debug log removed: Batch update response
     return responseJson;
   };
 
@@ -199,9 +240,45 @@ export default function BulkTicketGenerator({
     setProgress(0);
 
     try {
-      // Step 1: Generate all tickets
-      setCurrentStep(`Generating ${rsvps.length} tickets...`);
-      const ticketData: TicketData[] = rsvps.map((rsvp) => ({
+      // Step 1: Filter RSVPs - only approved ones without existing tickets
+      const eligibleRsvps = rsvps.filter((rsvp) => {
+        // Only approved RSVPs
+        if (rsvp.status !== 'approved') {
+          return false;
+        }
+        
+        // Skip if ticket already exists (has ticketImageUrl)
+        if (rsvp.ticketImageUrl) {
+          return false;
+        }
+        
+        return true;
+      });
+
+      if (eligibleRsvps.length === 0) {
+        const approvedCount = rsvps.filter(r => r.status === 'approved').length;
+        const withTicketsCount = rsvps.filter(r => r.ticketImageUrl).length;
+        
+        toast({
+          title: "No tickets to generate",
+          description: `${approvedCount} approved RSVPs already have tickets. ${withTicketsCount} total tickets exist.`,
+          variant: "default",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      const skippedCount = rsvps.length - eligibleRsvps.length;
+      if (skippedCount > 0) {
+        toast({
+          title: "Filtering RSVPs",
+          description: `Generating tickets for ${eligibleRsvps.length} approved RSVPs. Skipping ${skippedCount} (not approved or already have tickets).`,
+          variant: "default",
+        });
+      }
+
+      setCurrentStep(`Generating ${eligibleRsvps.length} tickets for approved RSVPs...`);
+      const ticketData: TicketData[] = eligibleRsvps.map((rsvp) => ({
         name: rsvp.name,
         email: rsvp.email,
         ticketNumber: rsvp.ticketNumber || `TKT-${rsvp.id.substring(0, 8)}`,
@@ -210,47 +287,35 @@ export default function BulkTicketGenerator({
         venue,
       }));
 
-      const blobs = await generateTicketsBatch(
+      // Generate tickets and upload to CDN directly
+      const urls = await generateTicketsBatchWithCDN(
         template,
         ticketData,
         (processed: number, total: number) => {
-          setProgress((processed / total) * 50); // 50% for generation
+          setProgress((processed / total) * 90); // 90% for generation + upload
         },
-        "png"
+        "webp", // Use WebP for better compression
+        0.85,
       );
-
-      // Step 2: Upload to CDN
-      const blobsArray = Array.from(blobs.values());
-      setCurrentStep(`Uploading ${blobsArray.length} tickets...`);
-      const uploadPromises = blobsArray.map((blob, index) =>
-        uploadBlob(blob, `ticket-${rsvps[index].id}.png`)
-      );
-
-      // Upload in batches of 5
-      const urls: string[] = [];
-      for (let i = 0; i < uploadPromises.length; i += 5) {
-        const batch = uploadPromises.slice(i, i + 5);
-        const batchUrls = await Promise.all(batch);
-        urls.push(...batchUrls);
-        setProgress(50 + ((i + batch.length) / uploadPromises.length) * 40); // 40% for upload
-      }
 
       // Step 3: Update database
       setCurrentStep("Updating database...");
-      const updates = rsvps.map((rsvp, index) => ({
+      const updates = eligibleRsvps.map((rsvp, index) => ({
         id: rsvp.id,
         ticketImageUrl: urls[index],
       }));
 
       const batchResult = await batchUpdateRSVPs(updates);
       if (!batchResult?.success) {
-        throw new Error("Batch update failed: " + (batchResult?.error || "Unknown error"));
+        throw new Error(
+          "Batch update failed: " + (batchResult?.error || "Unknown error"),
+        );
       }
       setProgress(100);
 
       toast({
         title: "Success!",
-        description: `Generated ${rsvps.length} tickets successfully`,
+        description: `Generated ${eligibleRsvps.length} tickets successfully for approved RSVPs`,
       });
 
       setOpen(false);
@@ -316,7 +381,7 @@ export default function BulkTicketGenerator({
               <Label>Preview (First 3 tickets)</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 {previewUrls.map((url, i) => (
-                  <img
+                  <Image
                     key={i}
                     src={url}
                     alt={`Preview ${i + 1}`}
@@ -351,7 +416,9 @@ export default function BulkTicketGenerator({
               onClick={handleGenerateAll}
               disabled={isGenerating || !selectedTemplateId}
             >
-              {isGenerating ? "Generating..." : `Generate ${rsvps.length} Tickets`}
+              {isGenerating
+                ? "Generating..."
+                : `Generate ${rsvps.length} Tickets`}
             </Button>
           </div>
         </div>

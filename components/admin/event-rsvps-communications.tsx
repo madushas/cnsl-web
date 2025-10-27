@@ -1,13 +1,18 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { Mail, Scan, ExternalLink } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { Mail, Scan, ExternalLink } from "lucide-react";
 
 type Props = {
-  slug: string
-}
+  slug: string;
+};
 
 export default function EventRSVPsCommunications({ slug }: Props) {
   return (
@@ -30,7 +35,8 @@ export default function EventRSVPsCommunications({ slug }: Props) {
                   <h3 className="font-semibold">Email Builder</h3>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Create and send custom emails to attendees with filters and templates
+                  Create and send custom emails to attendees with filters and
+                  templates
                 </p>
                 <div className="flex items-center gap-2 text-sm text-primary">
                   <span>Open Email Builder</span>
@@ -48,7 +54,8 @@ export default function EventRSVPsCommunications({ slug }: Props) {
                   <h3 className="font-semibold">QR Scanner</h3>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Scan attendee QR codes for quick check-in and checkpoint marking
+                  Scan attendee QR codes for quick check-in and checkpoint
+                  marking
                 </p>
                 <div className="flex items-center gap-2 text-sm text-primary">
                   <span>Open Scanner</span>
@@ -63,9 +70,7 @@ export default function EventRSVPsCommunications({ slug }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common communication tasks
-          </CardDescription>
+          <CardDescription>Common communication tasks</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
@@ -80,5 +85,5 @@ export default function EventRSVPsCommunications({ slug }: Props) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

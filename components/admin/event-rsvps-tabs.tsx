@@ -1,21 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, CheckCircle, Mail, Download } from "lucide-react"
-import EventRSVPsList from "./event-rsvps-list"
-import EventRSVPsCheckpoints from "./event-rsvps-checkpoints"
-import EventRSVPsCommunications from "./event-rsvps-communications"
-import EventRSVPsImport from "./event-rsvps-import"
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, CheckCircle, Mail, Download } from "lucide-react";
+import EventRSVPsList from "./event-rsvps-list";
+import EventRSVPsCheckpoints from "./event-rsvps-checkpoints";
+import EventRSVPsCommunications from "./event-rsvps-communications";
+import EventRSVPsImport from "./event-rsvps-import";
 
 type Props = {
-  slug: string
-  capacity: number
-  title: string
-}
+  slug: string;
+  capacity: number;
+  title: string;
+  date?: Date;
+  venue?: string;
+};
 
-export default function EventRSVPsTabs({ slug, capacity, title }: Props) {
-  const [activeTab, setActiveTab] = useState("list")
+export default function EventRSVPsTabs({ slug, capacity, title, date, venue }: Props) {
+  const [activeTab, setActiveTab] = useState("list");
 
   return (
     <div className="space-y-6">
@@ -39,7 +41,10 @@ export default function EventRSVPsTabs({ slug, capacity, title }: Props) {
             <span className="hidden sm:inline">Checkpoints</span>
             <span className="sm:hidden">Check</span>
           </TabsTrigger>
-          <TabsTrigger value="communications" className="flex items-center gap-2">
+          <TabsTrigger
+            value="communications"
+            className="flex items-center gap-2"
+          >
             <Mail className="h-4 w-4" />
             <span className="hidden sm:inline">Email</span>
             <span className="sm:hidden">Email</span>
@@ -52,7 +57,13 @@ export default function EventRSVPsTabs({ slug, capacity, title }: Props) {
         </TabsList>
 
         <TabsContent value="list" className="mt-6">
-          <EventRSVPsList slug={slug} capacity={capacity} />
+          <EventRSVPsList 
+            slug={slug} 
+            capacity={capacity} 
+            title={title}
+            date={date ? new Date(date).toLocaleDateString() : undefined}
+            venue={venue || undefined}
+          />
         </TabsContent>
 
         <TabsContent value="checkpoints" className="mt-6">
@@ -68,5 +79,5 @@ export default function EventRSVPsTabs({ slug, capacity, title }: Props) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

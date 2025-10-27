@@ -1,8 +1,15 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { BlogCardCompact, type BlogCardProps } from "@/components/blog-card-compact";
-import { FilterPanel, type FilterOption, type FilterStats } from "@/components/filter-panel";
+import {
+  BlogCardCompact,
+  type BlogCardProps,
+} from "@/components/blog-card-compact";
+import {
+  FilterPanel,
+  type FilterOption,
+  type FilterStats,
+} from "@/components/filter-panel";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 
@@ -18,9 +25,11 @@ export function BlogClientFilterCompact({ posts }: { posts: BlogCardProps[] }) {
   const categories = useMemo(
     () => [
       "All",
-      ...Array.from(new Set(posts.map((p) => p.category || "General").filter(Boolean))),
+      ...Array.from(
+        new Set(posts.map((p) => p.category || "General").filter(Boolean)),
+      ),
     ],
-    [posts]
+    [posts],
   );
 
   // Filter posts
@@ -32,11 +41,11 @@ export function BlogClientFilterCompact({ posts }: { posts: BlogCardProps[] }) {
           ? true
           : (p.title + " " + (p.excerpt || ""))
               .toLowerCase()
-              .includes(q.toLowerCase())
+              .includes(q.toLowerCase()),
       )
       .sort(
         (a, b) =>
-          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
       );
   }, [category, q, posts]);
 

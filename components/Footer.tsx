@@ -1,13 +1,13 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import LinkedInIcon from "./icons/linkedin"
-import NewTwitterIcon from "./icons/newTwitterIcon"
-import GithubIcon from "./icons/githubIcon"
-import YouTubeIcon from "./icons/youTubeicon"
-import FacebookIcon from "./icons/facebook"
-import WhatsAppIcon from "./icons/whatsappIcon"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import LinkedInIcon from "./icons/linkedin";
+import NewTwitterIcon from "./icons/newTwitterIcon";
+import GithubIcon from "./icons/githubIcon";
+import YouTubeIcon from "./icons/youTubeicon";
+import FacebookIcon from "./icons/facebook";
+import WhatsAppIcon from "./icons/whatsappIcon";
 
 export function Footer() {
   return (
@@ -32,17 +32,20 @@ export function Footer() {
                   <path d="M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-blue-500">
-                CNSL
-              </span>
+              <span className="text-xl font-bold text-blue-500">CNSL</span>
             </div>
             <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
-              Empowering Sri Lanka’s cloud-native community through mentorship, education, and collaboration.
+              Empowering Sri Lanka’s cloud-native community through mentorship,
+              education, and collaboration.
             </p>
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Newsletter</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Newsletter
+              </p>
               <div className="flex gap-2">
-                <label htmlFor="newsletter-email" className="sr-only">Email address for newsletter</label>
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address for newsletter
+                </label>
                 <Input
                   id="newsletter-email"
                   type="email"
@@ -50,7 +53,10 @@ export function Footer() {
                   aria-label="Email address for newsletter subscription"
                   className="h-10 bg-white/5 text-foreground placeholder:text-muted-foreground border-border focus:border-blue-500/50"
                 />
-                <Button className="h-10 bg-blue-600 text-white hover:bg-blue-700 px-6" aria-label="Subscribe to newsletter">
+                <Button
+                  className="h-10 bg-blue-600 text-white hover:bg-blue-700 px-6"
+                  aria-label="Subscribe to newsletter"
+                >
                   Subscribe
                 </Button>
               </div>
@@ -59,18 +65,32 @@ export function Footer() {
 
           {/* Programs */}
           <div>
-            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">Programs</h3>
+            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">
+              Programs
+            </h3>
             <nav className="flex flex-col gap-3">
-              <Link href="/programs/cnsl-connect" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/programs/cnsl-connect"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 CNSL Connect (Mentorship)
               </Link>
-              <Link href="/programs/university-outreach" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/programs/university-outreach"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 University Outreach
               </Link>
-              <Link href="/programs/monthly-meetups" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/programs/monthly-meetups"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Monthly Meetups
               </Link>
-              <Link href="/events" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/events"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Upcoming Events
               </Link>
             </nav>
@@ -78,18 +98,32 @@ export function Footer() {
 
           {/* Community */}
           <div>
-            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">Community</h3>
+            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">
+              Community
+            </h3>
             <nav className="flex flex-col gap-3">
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/about"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 About Us
               </Link>
-              <Link href="/events" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/events"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Events
               </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/blog"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Blog & Updates
               </Link>
-              <Link href="/contact" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/contact"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Contact
               </Link>
             </nav>
@@ -97,20 +131,33 @@ export function Footer() {
 
           {/* Legal & Social */}
           <div>
-            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">Legal & Connect</h3>
+            <h3 className="mb-6 text-sm font-bold text-foreground uppercase tracking-wider">
+              Legal & Connect
+            </h3>
             <nav className="flex flex-col gap-3 mb-6">
-              <Link href="/code-of-conduct" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/code-of-conduct"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Code of Conduct
               </Link>
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/privacy"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-blue-400 transition-colors">
+              <Link
+                href="/terms"
+                className="text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+              >
                 Terms of Service
               </Link>
             </nav>
             <div>
-              <p className="mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Follow Us</p>
+              <p className="mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Follow Us
+              </p>
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="https://linkedin.com/company/cloudnativesl"
@@ -181,5 +228,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

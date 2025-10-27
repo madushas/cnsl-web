@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function EmptyState({
   title = "Nothing to show",
@@ -7,10 +7,10 @@ export function EmptyState({
   actionHref,
   actionLabel,
 }: {
-  title?: string
-  subtitle?: string
-  actionHref?: string
-  actionLabel?: string
+  title?: string;
+  subtitle?: string;
+  actionHref?: string;
+  actionLabel?: string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card card-padding-lg text-center gap-3">
@@ -22,5 +22,5 @@ export function EmptyState({
         </Button>
       )}
     </div>
-  )
+  );
 }

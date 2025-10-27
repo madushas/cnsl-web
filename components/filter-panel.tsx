@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { X, SlidersHorizontal } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useState } from "react";
 
 export type FilterOption = {
@@ -28,7 +34,12 @@ export type FilterPanelProps = {
   appliedCount?: number;
 };
 
-function FilterContent({ filters, stats, onReset, appliedCount }: FilterPanelProps) {
+function FilterContent({
+  filters,
+  stats,
+  onReset,
+  appliedCount,
+}: FilterPanelProps) {
   return (
     <div className="filter-sidebar space-y-6">
       {/* Stats */}
@@ -39,9 +50,14 @@ function FilterContent({ filters, stats, onReset, appliedCount }: FilterPanelPro
           </h3>
           <div className="space-y-1.5">
             {stats.map((stat, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm">
+              <div
+                key={idx}
+                className="flex items-center justify-between text-sm"
+              >
                 <span className="text-muted-foreground">{stat.label}</span>
-                <span className="font-medium text-foreground">{stat.value}</span>
+                <span className="font-medium text-foreground">
+                  {stat.value}
+                </span>
               </div>
             ))}
           </div>
@@ -60,9 +76,9 @@ function FilterContent({ filters, stats, onReset, appliedCount }: FilterPanelPro
             ) : null}
           </h3>
           {appliedCount && appliedCount > 0 ? (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onReset}
               className="h-auto px-2 py-1 text-xs"
             >
@@ -78,12 +94,15 @@ function FilterContent({ filters, stats, onReset, appliedCount }: FilterPanelPro
               <label className="mb-2 block text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 {filter.label}
               </label>
-              
+
               {filter.type === "search" ? (
                 <Input
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
-                  placeholder={filter.placeholder || `Search ${filter.label.toLowerCase()}...`}
+                  placeholder={
+                    filter.placeholder ||
+                    `Search ${filter.label.toLowerCase()}...`
+                  }
                   className="bg-background border-border text-sm"
                   aria-label={`Search ${filter.label}`}
                 />
@@ -127,8 +146,8 @@ export function FilterPanel(props: FilterPanelProps) {
       <div className="lg:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full sm:w-auto mb-4"
               aria-label="Open filters"
             >
@@ -141,7 +160,10 @@ export function FilterPanel(props: FilterPanelProps) {
               ) : null}
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+          <SheetContent
+            side="left"
+            className="w-[300px] sm:w-[400px] overflow-y-auto"
+          >
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>

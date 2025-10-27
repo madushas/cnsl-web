@@ -1,76 +1,92 @@
-import 'server-only'
-import { NextRequest } from 'next/server'
-import { db, schema } from '@/db'
-import { and, asc, desc, eq, inArray, or, sql, ilike } from 'drizzle-orm'
-import { requireAdmin } from '@/lib/auth'
-import { handleApiError } from '@/lib/errors'
-import { apiSuccess, parsePaginationParams, paginationMeta } from '@/lib/api-response'
+import "server-only";
+import { NextRequest } from "next/server";
+import { db } from "@/db";
+import { sql } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth";
+import { handleApiError } from "@/lib/errors";
+import {
+  apiSuccess,
+  parsePaginationParams,
+  paginationMeta,
+} from "@/lib/api-response";
 
 export async function GET(req: NextRequest) {
   try {
-    await requireAdmin()
-    const { searchParams } = new URL(req.url)
+    await requireAdmin();
+    const { searchParams } = new URL(req.url);
 
-    const { page, limit: pageSize, offset } = parsePaginationParams(searchParams)
-    const q = (searchParams.get('q') || '').trim()
-    const status = (searchParams.get('status') || '').trim() // 'published' | 'draft' | ''
-    const timeframe = (searchParams.get('timeframe') || '').trim() // 'upcoming' | 'past' | ''
+    const {
+      page,
+      limit: pageSize,
+      offset,
+    } = parsePaginationParams(searchParams);
+    const q = (searchParams.get("q") || "").trim();
+    const status = (searchParams.get("status") || "").trim(); // 'published' | 'draft' | ''
+    const timeframe = (searchParams.get("timeframe") || "").trim(); // 'upcoming' | 'past' | ''
 
-    const whereClauses: any[] = [sql`${schema.events.deletedAt} IS NULL`]
+    const conditions: any[] = [];
+
     if (q) {
-      const pattern = `%${q}%`
-      whereClauses.push(or(
-        ilike(schema.events.title, pattern),
-        ilike(schema.events.slug, pattern),
-        ilike(schema.events.city, pattern),
-        ilike(schema.events.venue, pattern),
-      ))
+      const pattern = `%${q}%`;
+      conditions.push(
+        sql`(title ILIKE ${pattern} OR slug ILIKE ${pattern} OR city ILIKE ${pattern} OR venue ILIKE ${pattern})`,
+      );
     }
-    if (status === 'published') whereClauses.push(eq(schema.events.published, true))
-    if (status === 'draft') whereClauses.push(eq(schema.events.published, false))
-    if (timeframe === 'upcoming') whereClauses.push(sql`${schema.events.date} >= now()`)
-    if (timeframe === 'past') whereClauses.push(sql`${schema.events.date} < now()`)
+    if (status === "published") conditions.push(sql`published = true`);
+    if (status === "draft") conditions.push(sql`published = false`);
+    if (timeframe === "upcoming") conditions.push(sql`is_upcoming = true`);
+    if (timeframe === "past") conditions.push(sql`is_past = true`);
 
-    const whereExpr = whereClauses.length ? and(...whereClauses) : undefined as any
+    const whereClause = conditions.length
+      ? sql`WHERE ${sql.join(conditions, sql` AND `)}`
+      : sql``;
 
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(schema.events)
-      .where(whereExpr)
+    // Sort events: upcoming events by date ASC (soonest first), past events by date DESC (most recent first)
+    // If no timeframe filter, show upcoming first, then past events
+    const orderExpr = timeframe === "past" 
+      ? sql`date DESC` 
+      : timeframe === "upcoming"
+      ? sql`date ASC`
+      : sql`CASE WHEN is_upcoming THEN 0 ELSE 1 END, date ASC`;
 
-    // Smart sorting: upcoming events by date asc, past events by date desc
-    const orderExpr = timeframe === 'past' ? desc(schema.events.date) : asc(schema.events.date)
+    const countQuery = sql`
+      SELECT count(*)::int AS count
+      FROM event_summary
+      ${whereClause}
+    `;
+    const { rows: countRows } = await db.execute(countQuery);
+    const total = Number(countRows?.[0]?.count ?? 0);
 
-    const items = await db
-      .select()
-      .from(schema.events)
-      .where(whereExpr)
-      .orderBy(orderExpr)
-      .limit(pageSize)
-      .offset(offset)
+    const dataQuery = sql`
+      SELECT *
+      FROM event_summary
+      ${whereClause}
+      ORDER BY ${orderExpr}
+      LIMIT ${pageSize}
+      OFFSET ${offset}
+    `;
+    const { rows } = await db.execute(dataQuery);
 
-    // augment with RSVP counts
-    const ids = items.map(i => i.id).filter(Boolean) as string[]
-    let counts: Array<{ eventId: string | null; c: number }> = []
-    if (ids.length) {
-      counts = await db
-        .select({ eventId: schema.rsvps.eventId, c: sql<number>`count(*)` })
-        .from(schema.rsvps)
-        .where(inArray(schema.rsvps.eventId, ids))
-        .groupBy(schema.rsvps.eventId)
-    }
-
-    const enriched = items.map(i => ({
-      ...i,
-      registered: Number((counts.find(x => x.eventId === i.id)?.c) ?? 0),
-    }))
+    const items = rows.map((row: any) => ({
+      ...row,
+      // Topics are now returned as simple string array from view
+      topics: Array.isArray(row.topics) ? row.topics.filter(Boolean) : [],
+      speakers: Array.isArray(row.speakers)
+        ? row.speakers.map((s: any) => ({
+            name: s?.name ?? null,
+            title: s?.title ?? null,
+            topic: s?.topic ?? null,
+          }))
+        : [],
+      registered: Number(row.rsvp_total ?? 0),
+    }));
 
     return apiSuccess(
-      { items: enriched, total: Number(count) || 0, page, pageSize },
+      { items, total, page, pageSize },
       200,
-      paginationMeta(page, pageSize, Number(count) || 0)
-    )
+      paginationMeta(page, pageSize, total),
+    );
   } catch (e: any) {
-    return handleApiError(e)
+    return handleApiError(e);
   }
 }

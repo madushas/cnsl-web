@@ -7,7 +7,7 @@ import { getSessionUser } from "@/lib/auth";
 // PATCH - Batch update ticket URLs for RSVPs
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const user = await getSessionUser();
@@ -20,19 +20,20 @@ export async function PATCH(
     if (!Array.isArray(updates) || updates.length === 0) {
       return NextResponse.json(
         { error: "Updates array is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Batch update all RSVPs
-    const updatePromises = updates.map((update: { id: string; ticketImageUrl: string }) =>
-      db
-        .update(rsvps)
-        .set({
-          ticketImageUrl: update.ticketImageUrl,
-          ticketGeneratedAt: new Date(),
-        })
-        .where(eq(rsvps.id, update.id))
+    const updatePromises = updates.map(
+      (update: { id: string; ticketImageUrl: string }) =>
+        db
+          .update(rsvps)
+          .set({
+            ticketImageUrl: update.ticketImageUrl,
+            ticketGeneratedAt: new Date(),
+          })
+          .where(eq(rsvps.id, update.id)),
     );
 
     await Promise.all(updatePromises);
@@ -43,10 +44,13 @@ export async function PATCH(
       count: updates.length,
     });
   } catch (error) {
-    console.error("[PATCH /api/admin/events/:slug/rsvps/batch-update-tickets]", error);
+    console.error(
+      "[PATCH /api/admin/events/:slug/rsvps/batch-update-tickets]",
+      error,
+    );
     return NextResponse.json(
       { error: "Failed to update RSVPs" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

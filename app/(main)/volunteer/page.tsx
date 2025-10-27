@@ -1,18 +1,26 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import Link from "next/link"
-import { Heart, Calendar, Code, Palette, Users, MessageSquare } from "lucide-react"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import Link from "next/link";
+import {
+  Heart,
+  Calendar,
+  Code,
+  Palette,
+  Users,
+  MessageSquare,
+} from "lucide-react";
 
 export const metadata = {
-  title: 'Volunteer with CNSL | Help Build Sri Lanka\'s Cloud Native Community',
-  description: 'Join our team of volunteers and help grow Sri Lanka\'s cloud-native technology community through events, content, and community engagement.',
-}
+  title: "Volunteer with CNSL | Help Build Sri Lanka's Cloud Native Community",
+  description:
+    "Join our team of volunteers and help grow Sri Lanka's cloud-native technology community through events, content, and community engagement.",
+};
 
 export default function VolunteerPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 section-spacing">
         {/* Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-16">
@@ -20,14 +28,16 @@ export default function VolunteerPage() {
             Help Build Sri Lanka&#39;s Cloud Native Community
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Volunteer with CNSL and make a real impact. Whether you have a few hours a month 
-            or want to dive deeper, there&#39;s a role for you.
+            Volunteer with CNSL and make a real impact. Whether you have a few
+            hours a month or want to dive deeper, there&#39;s a role for you.
           </p>
         </div>
 
         {/* Why Volunteer */}
         <div className="max-w-5xl mx-auto mb-16">
-          <h2 className="text-h2 text-white text-center mb-8">Why Volunteer?</h2>
+          <h2 className="text-h2 text-white text-center mb-8">
+            Why Volunteer?
+          </h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="border border-border/50 rounded-lg p-6 bg-card/30">
               <div className="flex items-center gap-3 mb-4">
@@ -37,7 +47,8 @@ export default function VolunteerPage() {
                 <h3 className="text-h4 text-white">Network & Learn</h3>
               </div>
               <p className="text-body text-gray-400">
-                Connect with industry professionals, mentors, and peers. Learn by doing and expand your knowledge.
+                Connect with industry professionals, mentors, and peers. Learn
+                by doing and expand your knowledge.
               </p>
             </div>
 
@@ -49,7 +60,8 @@ export default function VolunteerPage() {
                 <h3 className="text-h4 text-white">Make an Impact</h3>
               </div>
               <p className="text-body text-gray-400">
-                Help students and professionals grow their careers. Your contribution directly supports the community.
+                Help students and professionals grow their careers. Your
+                contribution directly supports the community.
               </p>
             </div>
 
@@ -61,7 +73,8 @@ export default function VolunteerPage() {
                 <h3 className="text-h4 text-white">Build Your Brand</h3>
               </div>
               <p className="text-body text-gray-400">
-                Gain recognition, build your portfolio, and showcase your commitment to community building.
+                Gain recognition, build your portfolio, and showcase your
+                commitment to community building.
               </p>
             </div>
           </div>
@@ -69,7 +82,9 @@ export default function VolunteerPage() {
 
         {/* Volunteer Roles */}
         <div className="max-w-5xl mx-auto mb-16">
-          <h2 className="text-h2 text-white text-center mb-8">Volunteer Roles</h2>
+          <h2 className="text-h2 text-white text-center mb-8">
+            Volunteer Roles
+          </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Event Operations */}
             <div className="border border-border/50 rounded-lg p-8 bg-card/30">
@@ -82,7 +97,7 @@ export default function VolunteerPage() {
               <p className="text-gray-400 mb-4">
                 Help organize and run our monthly meetups and special events
               </p>
-              <h4 className="text-white font-semibold mb-2">What You'll Do:</h4>
+              <h4 className="text-white font-semibold mb-2">What You&apos;ll Do:</h4>
               <ul className="space-y-2 text-gray-400 text-sm mb-4">
                 <li>• Coordinate with venues and speakers</li>
                 <li>• Manage RSVPs and attendee communications</li>
@@ -107,7 +122,7 @@ export default function VolunteerPage() {
               <p className="text-gray-400 mb-4">
                 Create content and engage with the community online
               </p>
-              <h4 className="text-white font-semibold mb-2">What You'll Do:</h4>
+              <h4 className="text-white font-semibold mb-2">What You&apos;ll Do:</h4>
               <ul className="space-y-2 text-gray-400 text-sm mb-4">
                 <li>• Write blog posts and event recaps</li>
                 <li>• Manage social media accounts</li>
@@ -132,7 +147,7 @@ export default function VolunteerPage() {
               <p className="text-gray-400 mb-4">
                 Design visual assets and improve community branding
               </p>
-              <h4 className="text-white font-semibold mb-2">What You'll Do:</h4>
+              <h4 className="text-white font-semibold mb-2">What You&apos;ll Do:</h4>
               <ul className="space-y-2 text-gray-400 text-sm mb-4">
                 <li>• Create event posters and social media graphics</li>
                 <li>• Design presentation templates</li>
@@ -157,7 +172,7 @@ export default function VolunteerPage() {
               <p className="text-gray-400 mb-4">
                 Improve our website and technical infrastructure
               </p>
-              <h4 className="text-white font-semibold mb-2">What You'll Do:</h4>
+              <h4 className="text-white font-semibold mb-2">What You&apos;ll Do:</h4>
               <ul className="space-y-2 text-gray-400 text-sm mb-4">
                 <li>• Contribute to website development</li>
                 <li>• Fix bugs and add new features</li>
@@ -176,14 +191,18 @@ export default function VolunteerPage() {
         {/* Impact Stats */}
         <div className="max-w-4xl mx-auto mb-16">
           <div className="border border-primary/20 rounded-lg p-8 bg-primary/5">
-            <h2 className="text-h3 text-white text-center mb-8">Our Community Impact</h2>
+            <h2 className="text-h3 text-white text-center mb-8">
+              Our Community Impact
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">50+</div>
                 <div className="text-gray-400 text-sm">Events Organized</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">2,000+</div>
+                <div className="text-4xl font-bold text-primary mb-2">
+                  2,000+
+                </div>
                 <div className="text-gray-400 text-sm">Community Members</div>
               </div>
               <div>
@@ -200,41 +219,55 @@ export default function VolunteerPage() {
 
         {/* What We Provide */}
         <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-h2 text-white text-center mb-8">What We Provide</h2>
+          <h2 className="text-h2 text-white text-center mb-8">
+            What We Provide
+          </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex gap-4">
               <div className="text-primary text-2xl">✓</div>
               <div>
-                <h3 className="text-white font-semibold mb-1">Training & Onboarding</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  Training & Onboarding
+                </h3>
                 <p className="text-gray-400 text-sm">
-                  We&#39;ll teach you everything you need to know to succeed in your role
+                  We&#39;ll teach you everything you need to know to succeed in
+                  your role
                 </p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="text-primary text-2xl">✓</div>
               <div>
-                <h3 className="text-white font-semibold mb-1">Flexible Schedule</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  Flexible Schedule
+                </h3>
                 <p className="text-gray-400 text-sm">
-                  Work around your availability — we understand you have other commitments
+                  Work around your availability — we understand you have other
+                  commitments
                 </p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="text-primary text-2xl">✓</div>
               <div>
-                <h3 className="text-white font-semibold mb-1">Recognition & Certificates</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  Recognition & Certificates
+                </h3>
                 <p className="text-gray-400 text-sm">
-                  Receive volunteer certificates and public acknowledgment for your contributions
+                  Receive volunteer certificates and public acknowledgment for
+                  your contributions
                 </p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="text-primary text-2xl">✓</div>
               <div>
-                <h3 className="text-white font-semibold mb-1">Community Access</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  Community Access
+                </h3>
                 <p className="text-gray-400 text-sm">
-                  Free entry to all events and exclusive volunteer networking sessions
+                  Free entry to all events and exclusive volunteer networking
+                  sessions
                 </p>
               </div>
             </div>
@@ -243,9 +276,12 @@ export default function VolunteerPage() {
 
         {/* CTA */}
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-h2 text-white mb-4">Ready to Make a Difference?</h2>
+          <h2 className="text-h2 text-white mb-4">
+            Ready to Make a Difference?
+          </h2>
           <p className="text-gray-400 mb-8">
-            Join our volunteer team and help us grow Sri Lanka&#39;s cloud-native community
+            Join our volunteer team and help us grow Sri Lanka&#39;s
+            cloud-native community
           </p>
           <Link
             href="/contact?topic=Volunteer&ref=volunteer-page"
@@ -255,14 +291,20 @@ export default function VolunteerPage() {
             Apply to Volunteer
           </Link>
           <p className="mt-6 text-sm text-gray-500">
-            Questions? Email us at <a href="mailto:hello@cloudnative.lk" className="text-primary hover:underline">hello@cloudnative.lk</a>
+            Questions? Email us at{" "}
+            <a
+              href="mailto:hello@cloudnative.lk"
+              className="text-primary hover:underline"
+            >
+              hello@cloudnative.lk
+            </a>
           </p>
         </div>
       </main>
 
       <Footer />
     </div>
-  )
+  );
 }
 
-export const dynamic = 'force-static'
+export const dynamic = "force-static";

@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import React from 'react'
+import React from "react";
 
-type Props = { children: React.ReactNode }
+type Props = { children: React.ReactNode };
 
-type State = { hasError: boolean; error: Error | null }
+type State = { hasError: boolean; error: Error | null };
 
 export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
-    super(props)
-    this.state = { hasError: false, error: null }
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // In production, route to your logger here
-    // eslint-disable-next-line no-console
-    console.error('ErrorBoundary caught', { error, errorInfo })
+
+    console.error("ErrorBoundary caught", { error, errorInfo });
   }
 
   render() {
@@ -27,9 +27,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center p-6">
           <div className="max-w-md text-center">
-            <h1 className="text-2xl font-semibold mb-2">Something went wrong</h1>
+            <h1 className="text-2xl font-semibold mb-2">
+              Something went wrong
+            </h1>
             <p className="text-sm text-muted-foreground mb-4">
-              An unexpected error occurred. Please try again or contact support if the problem persists.
+              An unexpected error occurred. Please try again or contact support
+              if the problem persists.
             </p>
             <button
               className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-primary-foreground text-sm"
@@ -39,8 +42,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </button>
           </div>
         </div>
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
 }

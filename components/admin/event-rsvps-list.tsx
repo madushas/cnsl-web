@@ -1,12 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  RSVPStatusBadge,
+  RSVPStatusLegend,
+} from "@/components/admin/rsvp-status-badge";
+import { ActiveFiltersBar } from "@/components/admin/active-filter-badge";
 import {
   Table,
   TableBody,
@@ -14,155 +25,172 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Filter, Search, Loader2, CheckCircle, Linkedin, Twitter, Github, Globe } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { withCSRF } from "@/lib/csrf"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import BulkTicketGenerator from "@/components/admin/bulk-ticket-generator"
+} from "@/components/ui/select";
+import {
+  Filter,
+  Search,
+  Loader2,
+  CheckCircle,
+  Linkedin,
+  Twitter,
+  Github,
+  Globe,
+} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { withCSRF } from "@/lib/csrf";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import BulkTicketGenerator from "@/components/admin/bulk-ticket-generator";
 
 type RSVP = {
-  id: string
-  accountId?: string
-  name: string
-  email: string
-  status: string
-  createdAt: string
-  notifiedAt?: string
-  ticketNumber?: string
-  checkedInAt?: string
-  affiliation?: string
-  qrCode?: string
+  id: string;
+  accountId?: string;
+  name: string;
+  email: string;
+  status: string;
+  createdAt: string;
+  notifiedAt?: string;
+  ticketNumber?: string;
+  checkedInAt?: string;
+  affiliation?: string;
+  qrCode?: string;
   checkpoints?: {
-    hasEntry: boolean
-    hasRefreshment: boolean
-    hasSwag: boolean
-    entryScannedAt?: string | null
-    refreshmentScannedAt?: string | null
-    swagScannedAt?: string | null
-  }
+    hasEntry: boolean;
+    hasRefreshment: boolean;
+    hasSwag: boolean;
+    entryScannedAt?: string | null;
+    refreshmentScannedAt?: string | null;
+    swagScannedAt?: string | null;
+  };
   profile?: {
-    linkedin?: string | null
-    twitter?: string | null
-    github?: string | null
-    website?: string | null
-    company?: string | null
-    title?: string | null
-  } | null
-}
+    linkedin?: string | null;
+    twitter?: string | null;
+    github?: string | null;
+    website?: string | null;
+    company?: string | null;
+    title?: string | null;
+  } | null;
+};
 
 type Props = {
-  slug: string
-  capacity: number
-}
+  slug: string;
+  capacity: number;
+  title?: string;
+  date?: string;
+  venue?: string;
+};
 
-export default function EventRSVPsList({ slug, capacity }: Props) {
-  const { toast } = useToast()
-  const [rsvps, setRsvps] = useState<RSVP[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedRsvps, setSelectedRsvps] = useState<Set<string>>(new Set())
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
-  const [total, setTotal] = useState(0)
-  const [approvedCount, setApprovedCount] = useState(0)
-  const [pendingCount, setPendingCount] = useState(0)
-  const [editOpen, setEditOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<RSVP | null>(null)
-  const [profileForm, setProfileForm] = useState({
-    linkedin: '', twitter: '', github: '', website: '', company: '', title: ''
-  })
+export default function EventRSVPsList({ slug, capacity, title, date, venue }: Props) {
+  const { toast } = useToast();
+  const [rsvps, setRsvps] = useState<RSVP[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRsvps, setSelectedRsvps] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [approvedCount, setApprovedCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+
 
   useEffect(() => {
-    const ab = new AbortController()
-    fetchData(ab.signal)
-    return () => ab.abort()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, searchQuery, statusFilter, page, pageSize])
+    const ab = new AbortController();
+    fetchData(ab.signal);
+    return () => ab.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, searchQuery, statusFilter, page, pageSize]);
+
+  // Keyboard shortcuts for bulk actions
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Cmd/Ctrl + A to select all
+      if ((e.metaKey || e.ctrlKey) && e.key === "a" && rsvps.length > 0) {
+        e.preventDefault();
+        if (selectedRsvps.size === rsvps.length) {
+          setSelectedRsvps(new Set());
+        } else {
+          setSelectedRsvps(new Set(rsvps.map((r) => r.id)));
+        }
+      }
+      // Escape to clear selection
+      if (e.key === "Escape" && selectedRsvps.size > 0) {
+        setSelectedRsvps(new Set());
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [rsvps, selectedRsvps]);
+
+  // Clear selection when filters change
+  useEffect(() => {
+    setSelectedRsvps(new Set());
+  }, [searchQuery, statusFilter, page]);
 
   async function fetchData(signal?: AbortSignal) {
     try {
-      setLoading(true)
-      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-      if (searchQuery.trim()) params.set('q', searchQuery.trim())
-      if (statusFilter !== 'all') params.set('status', statusFilter)
-      const res = await fetch(`/api/admin/events/${slug}/rsvps?${params.toString()}`, { cache: 'no-store', signal })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error?.message || data?.error || 'Failed to load RSVPs')
-      const payload = data?.data || data
-      setRsvps(Array.isArray(payload.items) ? payload.items : [])
-      setTotal(Number(payload.total || 0))
-      setApprovedCount(Number(payload.approvedCount || 0))
-      setPendingCount(Number(payload.pendingCount || 0))
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      const res = await fetch(
+        `/api/admin/events/${slug}/rsvps?${params.toString()}`,
+        { cache: "no-store", signal },
+      );
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(
+          data?.error?.message || data?.error || "Failed to load RSVPs",
+        );
+      const payload = data?.data || data;
+      setRsvps(Array.isArray(payload.items) ? payload.items : []);
+      setTotal(Number(payload.total || 0));
+      setApprovedCount(Number(payload.approvedCount || 0));
+      setPendingCount(Number(payload.pendingCount || 0));
     } catch (error: any) {
-      if (error.name === 'AbortError') return
-      toast({ title: 'Error', description: error.message || 'Failed to load RSVPs', variant: 'destructive' })
+      if (error.name === "AbortError") return;
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load RSVPs",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
-
 
   // Remove old exportAllUrl/exportSelectedUrl logic
 
-  function openEdit(r: RSVP) {
-    if (!r.accountId) {
-      toast({ title: 'Unavailable', description: 'No linked account for this RSVP.', variant: 'destructive' })
-      return
-    }
-    setEditTarget(r)
-    setProfileForm({
-      linkedin: r.profile?.linkedin || '',
-      twitter: r.profile?.twitter || '',
-      github: r.profile?.github || '',
-      website: r.profile?.website || '',
-      company: r.profile?.company || '',
-      title: r.profile?.title || '',
-    })
-    setEditOpen(true)
-  }
 
-  async function saveProfile() {
-    if (!editTarget?.accountId) return
-    try {
-      const res = await fetch(`/api/admin/users/${editTarget.accountId}/profile`, {
-        method: 'PATCH',
-        headers: withCSRF({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(profileForm),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to save profile')
-      toast({ title: 'Saved', description: 'Profile updated.' })
-      setEditOpen(false)
-      setEditTarget(null)
-      await fetchData()
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to save profile', variant: 'destructive' })
-    }
-  }
 
   function toggleRsvpSelection(id: string) {
-    const newSelection = new Set(selectedRsvps)
+    const newSelection = new Set(selectedRsvps);
     if (newSelection.has(id)) {
-      newSelection.delete(id)
+      newSelection.delete(id);
     } else {
-      newSelection.add(id)
+      newSelection.add(id);
     }
-    setSelectedRsvps(newSelection)
+    setSelectedRsvps(newSelection);
   }
 
   function selectAll() {
-    if (selectedRsvps.size === rsvps.length) setSelectedRsvps(new Set())
-    else setSelectedRsvps(new Set(rsvps.map(r => r.id)))
+    if (selectedRsvps.size === rsvps.length) setSelectedRsvps(new Set());
+    else setSelectedRsvps(new Set(rsvps.map((r) => r.id)));
   }
 
   async function bulkUpdateStatus(status: string) {
@@ -171,32 +199,34 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
         title: "No RSVPs selected",
         description: "Please select at least one RSVP to update",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
     try {
       const response = await fetch(`/api/admin/events/${slug}/select`, {
         method: "POST",
         headers: withCSRF({ "Content-Type": "application/json" }),
         body: JSON.stringify({ rsvpIds: Array.from(selectedRsvps), status }),
-      })
-      const result = await response.json()
+      });
+      const result = await response.json();
       if (!response.ok) {
-        throw new Error(result?.error?.message || result?.error || "Failed to update status")
+        throw new Error(
+          result?.error?.message || result?.error || "Failed to update status",
+        );
       }
-      const payload = result?.data || result
+      const payload = result?.data || result;
       toast({
         title: "Status Updated",
-        description: `Updated ${payload.updated || 0} RSVPs${payload.skipped?.length ? `, skipped ${payload.skipped.length} (capacity)` : ''}`,
-      })
-      await fetchData()
-      setSelectedRsvps(new Set())
+        description: `Updated ${payload.updated || 0} RSVPs${payload.skipped?.length ? `, skipped ${payload.skipped.length} (capacity)` : ""}`,
+      });
+      await fetchData();
+      setSelectedRsvps(new Set());
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update status",
         variant: "destructive",
-      })
+      });
     }
   }
 
@@ -205,17 +235,17 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
       <div className="flex items-center justify-center h-96">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   const stats = {
     total,
     pending: pendingCount,
     approved: approvedCount,
-    invited: rsvps.filter((r) => r.status === 'invited').length,
-    waitlist: rsvps.filter((r) => r.status === 'waitlist').length,
+    invited: rsvps.filter((r) => r.status === "invited").length,
+    waitlist: rsvps.filter((r) => r.status === "waitlist").length,
     checkedIn: rsvps.filter((r) => r.checkedInAt).length,
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -223,13 +253,14 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
       <div className="flex justify-end">
         <BulkTicketGenerator
           eventId={slug}
-          eventTitle={"Event Title"} // TODO: pass actual event title
-          eventDate={"Event Date"}   // TODO: pass actual event date
-          venue={"Venue"}           // TODO: pass actual venue
-          rsvps={rsvps.map(r => ({
+          eventTitle={title || "Event"}
+          eventDate={date || "TBD"}
+          venue={venue || "TBD"}
+          rsvps={rsvps.map((r) => ({
             id: r.id,
             name: r.name,
             email: r.email,
+            status: r.status,
             ticketNumber: r.ticketNumber,
             ticketImageUrl: r.qrCode || undefined,
           }))}
@@ -288,12 +319,16 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
         </Card>
       </div>
 
+      {/* RSVP Status Legend */}
+      <RSVPStatusLegend />
+
       {/* RSVP Management Card */}
       <Card>
         <CardHeader>
           <CardTitle>Registrations</CardTitle>
           <CardDescription>
-            Manage event registrations and track attendance · Capacity: {capacity || 0} · Approved: {approvedCount}
+            Manage event registrations and track attendance · Capacity:{" "}
+            {capacity || 0} · Approved: {approvedCount}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -305,12 +340,21 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                 <Input
                   placeholder="Search by name or email..."
                   value={searchQuery}
-                  onChange={(e) => { setSelectedRsvps(new Set()); setSearchQuery(e.target.value) }}
+                  onChange={(e) => {
+                    setSelectedRsvps(new Set());
+                    setSearchQuery(e.target.value);
+                  }}
                   className="pl-9"
                   aria-label="Search RSVPs by name or email"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={(v)=>{ setSelectedRsvps(new Set()); setStatusFilter(v) }}>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => {
+                  setSelectedRsvps(new Set());
+                  setStatusFilter(v);
+                }}
+              >
                 <SelectTrigger className="w-[150px]">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Status" />
@@ -327,24 +371,93 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
             </div>
           </div>
 
+          {/* Active Filters Indicator */}
+          <ActiveFiltersBar
+            filters={[
+              ...(searchQuery
+                ? [
+                    {
+                      label: "Search",
+                      value: searchQuery,
+                      onClear: () => setSearchQuery(""),
+                    },
+                  ]
+                : []),
+              ...(statusFilter !== "all"
+                ? [
+                    {
+                      label: "Status",
+                      value: statusFilter,
+                      onClear: () => setStatusFilter("all"),
+                    },
+                  ]
+                : []),
+            ]}
+            onClearAll={() => {
+              setSearchQuery("");
+              setStatusFilter("all");
+            }}
+          />
+
           {/* Export Actions */}
           {/* Removed old export actions (CSV/manual workflow) */}
 
-          {/* Bulk Actions */}
+          {/* Enhanced Bulk Actions Bar */}
           {selectedRsvps.size > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <span className="text-sm font-medium">{selectedRsvps.size} selected</span>
-              <div className="flex-1" />
-              <Button onClick={() => bulkUpdateStatus('approved')} variant="outline" size="sm">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Approve
-              </Button>
-              <Button onClick={() => bulkUpdateStatus('invited')} variant="outline" size="sm">
-                Mark Invited
-              </Button>
-              <Button onClick={() => bulkUpdateStatus('declined')} variant="outline" size="sm">
-                Decline
-              </Button>
+            <div className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-y border-primary/20 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <Badge
+                    variant="secondary"
+                    className="text-base px-3 py-1.5 font-semibold"
+                  >
+                    {selectedRsvps.size}{" "}
+                    {selectedRsvps.size === 1 ? "RSVP" : "RSVPs"} selected
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedRsvps(new Set())}
+                    className="h-7 text-xs"
+                  >
+                    Clear selection
+                  </Button>
+                </div>
+                <div className="h-px sm:h-6 w-full sm:w-px bg-border" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    onClick={() => bulkUpdateStatus("approved")}
+                    variant="default"
+                    size="sm"
+                    className="shadow-sm"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={() => bulkUpdateStatus("invited")}
+                    variant="secondary"
+                    size="sm"
+                    className="shadow-sm"
+                  >
+                    Mark Invited
+                  </Button>
+                  <Button
+                    onClick={() => bulkUpdateStatus("declined")}
+                    variant="outline"
+                    size="sm"
+                    className="shadow-sm hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
+                  >
+                    Decline
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground ml-auto hidden sm:block">
+                  <kbd className="px-1.5 py-0.5 bg-background border rounded text-xs">
+                    Esc
+                  </kbd>{" "}
+                  to clear
+                </div>
+              </div>
             </div>
           )}
 
@@ -355,7 +468,9 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={rsvps.length > 0 && selectedRsvps.size === rsvps.length}
+                      checked={
+                        rsvps.length > 0 && selectedRsvps.size === rsvps.length
+                      }
                       onCheckedChange={selectAll}
                     />
                   </TableHead>
@@ -374,13 +489,23 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
               <TableBody>
                 {rsvps.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={11}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       No registrations found
                     </TableCell>
                   </TableRow>
                 ) : (
                   rsvps.map((rsvp) => (
-                    <TableRow key={rsvp.id}>
+                    <TableRow
+                      key={rsvp.id}
+                      className={
+                        selectedRsvps.has(rsvp.id)
+                          ? "bg-primary/5 hover:bg-primary/10"
+                          : ""
+                      }
+                    >
                       <TableCell>
                         <Checkbox
                           checked={selectedRsvps.has(rsvp.id)}
@@ -390,14 +515,20 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                       <TableCell className="font-medium">{rsvp.name}</TableCell>
                       <TableCell>{rsvp.email}</TableCell>
                       <TableCell>
-                        <Badge variant={rsvp.status === 'approved' ? 'default' : rsvp.status === 'invited' ? 'secondary' : 'outline'}>
-                          {rsvp.status}
-                        </Badge>
+                        <RSVPStatusBadge status={rsvp.status} />
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{rsvp.ticketNumber || '-'}</TableCell>
-                      <TableCell>{new Date(rsvp.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell>{rsvp.notifiedAt ? new Date(rsvp.notifiedAt).toLocaleDateString() : '-'}</TableCell>
-                      
+                      <TableCell className="font-mono text-xs">
+                        {rsvp.ticketNumber || "-"}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(rsvp.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        {rsvp.notifiedAt
+                          ? new Date(rsvp.notifiedAt).toLocaleDateString()
+                          : "-"}
+                      </TableCell>
+
                       {/* Checkpoint Status Columns (Read-only in list view) */}
                       <TableCell className="text-center">
                         <TooltipProvider>
@@ -407,13 +538,17 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                                 {rsvp.checkpoints?.hasEntry ? (
                                   <CheckCircle className="h-4 w-4 text-green-600 inline" />
                                 ) : (
-                                  <span className="text-muted-foreground">-</span>
+                                  <span className="text-muted-foreground">
+                                    -
+                                  </span>
                                 )}
                               </span>
                             </TooltipTrigger>
                             {rsvp.checkpoints?.entryScannedAt && (
                               <TooltipContent>
-                                {new Date(rsvp.checkpoints.entryScannedAt).toLocaleString()}
+                                {new Date(
+                                  rsvp.checkpoints.entryScannedAt,
+                                ).toLocaleString()}
                               </TooltipContent>
                             )}
                           </Tooltip>
@@ -427,13 +562,17 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                                 {rsvp.checkpoints?.hasRefreshment ? (
                                   <CheckCircle className="h-4 w-4 text-orange-600 inline" />
                                 ) : (
-                                  <span className="text-muted-foreground">-</span>
+                                  <span className="text-muted-foreground">
+                                    -
+                                  </span>
                                 )}
                               </span>
                             </TooltipTrigger>
                             {rsvp.checkpoints?.refreshmentScannedAt && (
                               <TooltipContent>
-                                {new Date(rsvp.checkpoints.refreshmentScannedAt).toLocaleString()}
+                                {new Date(
+                                  rsvp.checkpoints.refreshmentScannedAt,
+                                ).toLocaleString()}
                               </TooltipContent>
                             )}
                           </Tooltip>
@@ -447,13 +586,17 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                                 {rsvp.checkpoints?.hasSwag ? (
                                   <CheckCircle className="h-4 w-4 text-green-600 inline" />
                                 ) : (
-                                  <span className="text-muted-foreground">-</span>
+                                  <span className="text-muted-foreground">
+                                    -
+                                  </span>
                                 )}
                               </span>
                             </TooltipTrigger>
                             {rsvp.checkpoints?.swagScannedAt && (
                               <TooltipContent>
-                                {new Date(rsvp.checkpoints.swagScannedAt).toLocaleString()}
+                                {new Date(
+                                  rsvp.checkpoints.swagScannedAt,
+                                ).toLocaleString()}
                               </TooltipContent>
                             )}
                           </Tooltip>
@@ -461,14 +604,52 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {rsvp.profile?.linkedin && <a href={rsvp.profile.linkedin} target="_blank" rel="noreferrer" title="LinkedIn"><Linkedin className="h-4 w-4" /></a>}
-                          {rsvp.profile?.twitter && <a href={rsvp.profile.twitter} target="_blank" rel="noreferrer" title="Twitter"><Twitter className="h-4 w-4" /></a>}
-                          {rsvp.profile?.github && <a href={rsvp.profile.github} target="_blank" rel="noreferrer" title="GitHub"><Github className="h-4 w-4" /></a>}
-                          {rsvp.profile?.website && <a href={rsvp.profile.website} target="_blank" rel="noreferrer" title="Website"><Globe className="h-4 w-4" /></a>}
-                          {rsvp.accountId && (
-                            <Button variant="ghost" size="sm" onClick={() => openEdit(rsvp)} className="h-6 px-2 text-xs">
-                              Edit
-                            </Button>
+                          {rsvp.profile?.linkedin && (
+                            <a
+                              href={rsvp.profile.linkedin}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="LinkedIn Profile"
+                              className="text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              <Linkedin className="h-4 w-4" />
+                            </a>
+                          )}
+                          {rsvp.profile?.twitter && (
+                            <a
+                              href={rsvp.profile.twitter}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Twitter Profile"
+                              className="text-blue-400 hover:text-blue-600 transition-colors"
+                            >
+                              <Twitter className="h-4 w-4" />
+                            </a>
+                          )}
+                          {rsvp.profile?.github && (
+                            <a
+                              href={rsvp.profile.github}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="GitHub Profile"
+                              className="text-gray-800 hover:text-gray-600 transition-colors"
+                            >
+                              <Github className="h-4 w-4" />
+                            </a>
+                          )}
+                          {rsvp.profile?.website && (
+                            <a
+                              href={rsvp.profile.website}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Personal Website"
+                              className="text-green-600 hover:text-green-800 transition-colors"
+                            >
+                              <Globe className="h-4 w-4" />
+                            </a>
+                          )}
+                          {(!rsvp.profile?.linkedin && !rsvp.profile?.twitter && !rsvp.profile?.github && !rsvp.profile?.website) && (
+                            <span className="text-xs text-muted-foreground">No profiles</span>
                           )}
                         </div>
                       </TableCell>
@@ -481,67 +662,75 @@ export default function EventRSVPsList({ slug, capacity }: Props) {
 
           {/* Pagination */}
           <div className="flex items-center justify-between text-sm">
-            <div className="text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / pageSize))} · {total} total</div>
+            <div className="text-muted-foreground">
+              Page {page} of {Math.max(1, Math.ceil(total / pageSize))} ·{" "}
+              {total} total
+            </div>
             <div className="flex items-center gap-2">
-              <Select value={String(pageSize)} onValueChange={(v)=>{ setPageSize(Number(v)); setPage(1) }}>
-                <SelectTrigger className="w-28"><SelectValue placeholder={String(pageSize)} /></SelectTrigger>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-28">
+                  <SelectValue placeholder={String(pageSize)} />
+                </SelectTrigger>
                 <SelectContent>
-                  {[10,20,50,100].map(n=> <SelectItem key={n} value={String(n)}>{n} / page</SelectItem>)}
+                  {[10, 20, 50, 100].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n} / page
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" onClick={()=>setPage(1)} disabled={page<=1}>First</Button>
-                <Button variant="outline" size="sm" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page<=1}>Prev</Button>
-                <Button variant="outline" size="sm" onClick={()=>{ const pc=Math.max(1, Math.ceil(total / pageSize)); setPage(p=>Math.min(pc,p+1)) }} disabled={page>=Math.max(1, Math.ceil(total / pageSize))}>Next</Button>
-                <Button variant="outline" size="sm" onClick={()=>{ const pc=Math.max(1, Math.ceil(total / pageSize)); setPage(pc) }} disabled={page>=Math.max(1, Math.ceil(total / pageSize))}>Last</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(1)}
+                  disabled={page <= 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                >
+                  Prev
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const pc = Math.max(1, Math.ceil(total / pageSize));
+                    setPage((p) => Math.min(pc, p + 1));
+                  }}
+                  disabled={page >= Math.max(1, Math.ceil(total / pageSize))}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const pc = Math.max(1, Math.ceil(total / pageSize));
+                    setPage(pc);
+                  }}
+                  disabled={page >= Math.max(1, Math.ceil(total / pageSize))}
+                >
+                  Last
+                </Button>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Edit Profile Dialog */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Profile Links</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-3">
-            <div>
-              <Label className="text-xs">LinkedIn</Label>
-              <Input value={profileForm.linkedin} onChange={e=>setProfileForm(p=>({ ...p, linkedin: e.target.value }))} placeholder="https://linkedin.com/in/..." />
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs">Twitter</Label>
-                <Input value={profileForm.twitter} onChange={e=>setProfileForm(p=>({ ...p, twitter: e.target.value }))} placeholder="https://x.com/..." />
-              </div>
-              <div>
-                <Label className="text-xs">GitHub</Label>
-                <Input value={profileForm.github} onChange={e=>setProfileForm(p=>({ ...p, github: e.target.value }))} placeholder="https://github.com/..." />
-              </div>
-            </div>
-            <div>
-              <Label className="text-xs">Website</Label>
-              <Input value={profileForm.website} onChange={e=>setProfileForm(p=>({ ...p, website: e.target.value }))} placeholder="https://..." />
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs">Company</Label>
-                <Input value={profileForm.company} onChange={e=>setProfileForm(p=>({ ...p, company: e.target.value }))} />
-              </div>
-              <div>
-                <Label className="text-xs">Title</Label>
-                <Input value={profileForm.title} onChange={e=>setProfileForm(p=>({ ...p, title: e.target.value }))} />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={()=>setEditOpen(false)}>Cancel</Button>
-            <Button onClick={saveProfile}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </div>
-  )
+  );
 }

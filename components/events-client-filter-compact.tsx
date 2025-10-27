@@ -1,13 +1,24 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { EventCardCompact, type EventCardProps } from "@/components/event-card-compact";
-import { FilterPanel, type FilterOption, type FilterStats } from "@/components/filter-panel";
+import {
+  EventCardCompact,
+  type EventCardProps,
+} from "@/components/event-card-compact";
+import {
+  FilterPanel,
+  type FilterOption,
+  type FilterStats,
+} from "@/components/filter-panel";
 import { EmptyState } from "@/components/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
-export function EventsClientFilterCompact({ events }: { events: EventCardProps[] }) {
+export function EventsClientFilterCompact({
+  events,
+}: {
+  events: EventCardProps[];
+}) {
   const [city, setCity] = useState<string>("All");
   const [q, setQ] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("upcoming");
@@ -22,7 +33,7 @@ export function EventsClientFilterCompact({ events }: { events: EventCardProps[]
       "All",
       ...Array.from(new Set(events.map((x) => x.city || "").filter(Boolean))),
     ],
-    [events]
+    [events],
   );
 
   // Filter events
@@ -35,22 +46,29 @@ export function EventsClientFilterCompact({ events }: { events: EventCardProps[]
           : [e.title, e.venue, e.description]
               .join(" ")
               .toLowerCase()
-              .includes(q.toLowerCase())
+              .includes(q.toLowerCase()),
       )
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [city, q, events]);
 
   const filteredUpcoming = useMemo(
-    () => filtered.filter((e) => new Date(e.date).getTime() >= Date.now()),
-    [filtered]
+    () => {
+      const now = new Date().getTime();
+      return filtered.filter((e) => new Date(e.date).getTime() >= now);
+    },
+    [filtered],
   );
 
   const filteredPast = useMemo(
-    () =>
-      filtered
-        .filter((e) => new Date(e.date).getTime() < Date.now())
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [filtered]
+    () => {
+      const now = new Date().getTime();
+      return filtered
+        .filter((e) => new Date(e.date).getTime() < now)
+        .sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
+    },
+    [filtered],
   );
 
   // Filter configuration
@@ -110,9 +128,7 @@ export function EventsClientFilterCompact({ events }: { events: EventCardProps[]
             <TabsTrigger value="upcoming">
               Upcoming ({filteredUpcoming.length})
             </TabsTrigger>
-            <TabsTrigger value="past">
-              Past ({filteredPast.length})
-            </TabsTrigger>
+            <TabsTrigger value="past">Past ({filteredPast.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming">
@@ -152,7 +168,10 @@ export function EventsClientFilterCompact({ events }: { events: EventCardProps[]
               <div className="space-y-6">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                   {visiblePast.map((event) => (
-                    <EventCardCompact key={event.id} event={{ ...event, isPast: true }} />
+                    <EventCardCompact
+                      key={event.id}
+                      event={{ ...event, isPast: true }}
+                    />
                   ))}
                 </div>
 

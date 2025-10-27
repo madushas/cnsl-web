@@ -17,4 +17,4 @@ export default function MonthlyMeetupsPage() {
   );
 }
 
-export const dynamic = 'force-static'
+export const dynamic = "force-static";

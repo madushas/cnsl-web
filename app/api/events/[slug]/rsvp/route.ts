@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
 import { getSessionUser } from "@/lib/auth";
-import { nanoid } from "nanoid";
 import { db, schema } from "@/db";
 import { and, eq } from "drizzle-orm";
 import { logAudit } from "@/lib/audit";

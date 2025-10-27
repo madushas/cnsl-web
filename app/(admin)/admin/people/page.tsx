@@ -1,369 +1,329 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { withCSRF } from '@/lib/csrf'
-import { toast } from 'sonner'
-import { PersonInput } from '@/lib/types'
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { IconPlus, IconUsers, IconUserStar } from "@tabler/icons-react";
+import { withCSRF } from "@/lib/csrf";
+import { toast } from "sonner";
+import { PersonInput } from "@/lib/validation";
+import { PersonCard } from "@/components/admin/person-card";
+import { PersonModal } from "@/components/admin/person-modal";
+import { EmptyState } from "@/components/admin/empty-state";
 
 export default function AdminPeoplePage() {
   type Person = {
-    id?: string
-    name: string
-    role?: string
-    title?: string
-    company?: string
-    linkedin?: string
-    twitter?: string
-    github?: string
-    website?: string
-    photo?: string
-    category: 'organizer' | 'advisor'
-  }
+    id?: string;
+    name: string;
+    role?: string;
+    title?: string;
+    company?: string;
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    website?: string;
+    photo?: string;
+    category: "organizer" | "advisor";
+  };
 
-  function startEdit(p: Person) {
-    setEditingId(p.id!)
-    setEditForm({
-      id: p.id,
-      name: p.name,
-      role: p.role || '',
-      title: p.title || '',
-      company: p.company || '',
-      linkedin: p.linkedin || '',
-      twitter: p.twitter || '',
-      github: p.github || '',
-      website: p.website || '',
-      photo: p.photo || '',
-      category: p.category,
-    })
-  }
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [organizers, setOrganizers] = useState<Person[]>([]);
+  const [advisors, setAdvisors] = useState<Person[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [personToDelete, setPersonToDelete] = useState<Person | null>(null);
 
-  function cancelEdit() {
-    setEditingId(null)
-    setEditForm(null)
+  function hasId(person: Person): person is Person & { id: string } {
+    return typeof person.id === "string" && person.id.length > 0;
   }
-
-  async function saveEdit() {
-    if (!editingId || !editForm) return
-    await patch(editingId, {
-      name: editForm.name,
-      role: editForm.role,
-      title: editForm.title,
-      company: editForm.company,
-      linkedin: editForm.linkedin,
-      twitter: editForm.twitter,
-      github: editForm.github,
-      website: editForm.website,
-      photo: editForm.photo,
-      category: editForm.category,
-    })
-    cancelEdit()
-  }
-
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [organizers, setOrganizers] = useState<Person[]>([])
-  const [advisors, setAdvisors] = useState<Person[]>([])
-  const [form, setForm] = useState<Person>({ name: '', category: 'organizer' })
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<Person | null>(null)
 
   async function load() {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await fetch('/api/people', { cache: 'no-store' })
-      const data = await res.json()
-      setOrganizers(data.organizers || [])
-      setAdvisors(data.advisors || [])
-      setError(null)
+      const res = await fetch("/api/people", { cache: "no-store" });
+      const data = await res.json();
+      setOrganizers(data.organizers || []);
+      setAdvisors(data.advisors || []);
+      setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load people')
+      setError(e instanceof Error ? e.message : "Failed to load people");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    load()
-  }, [])
+    load();
+  }, []);
 
-  async function create(e: React.FormEvent) {
-    e.preventDefault()
-    // Normalize
+  async function handleSavePerson(person: Person) {
     const payload = {
-      name: form.name,
-      role: form.role || undefined,
-      title: form.title || undefined,
-      company: form.company || undefined,
-      linkedin: form.linkedin || undefined,
-      twitter: form.twitter || undefined,
-      github: form.github || undefined,
-      website: form.website || undefined,
-      photo: form.photo || undefined,
-      category: form.category,
-    }
-    const validation = PersonInput.safeParse(payload)
+      name: person.name,
+      role: person.role || undefined,
+      title: person.title || undefined,
+      company: person.company || undefined,
+      linkedin: person.linkedin || undefined,
+      twitter: person.twitter || undefined,
+      github: person.github || undefined,
+      website: person.website || undefined,
+      photo: person.photo || undefined,
+      category: person.category,
+    };
+
+    const validation = PersonInput.safeParse(payload);
     if (!validation.success) {
-      // collect per-field errors
-      const errs: Record<string, string> = {}
-      for (const issue of validation.error.issues) {
-        const key = issue.path.join('.')
-        if (!errs[key]) errs[key] = issue.message
+      const msg =
+        "Validation failed: " +
+        validation.error.issues
+          .map((i) => `${i.path.join(".")}: ${i.message}`)
+          .join(", ");
+      toast.error(msg);
+      throw new Error(msg);
+    }
+
+    if (person.id) {
+      // Update
+      const res = await fetch(`/api/people/${person.id}`, {
+        method: "PATCH",
+        headers: withCSRF({ "Content-Type": "application/json" }),
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        toast.success("Person updated");
+        load();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error || "Failed to update person");
+        throw new Error(data?.error || "Failed to update person");
       }
-      setFormErrors(errs)
-      const msg = 'Validation failed. Please fix the highlighted fields.'
-      toast.error(msg)
-      return
+    } else {
+      // Create
+      const res = await fetch("/api/people", {
+        method: "POST",
+        headers: withCSRF({ "Content-Type": "application/json" }),
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        toast.success("Person added");
+        load();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error || "Failed to add person");
+        throw new Error(data?.error || "Failed to add person");
+      }
     }
-    setFormErrors({})
-    const res = await fetch('/api/people', { method: 'POST', headers: withCSRF({ 'Content-Type': 'application/json' }), body: JSON.stringify(payload) })
-    if (res.ok) { setForm({ name: '', category: 'organizer' }); toast.success('Person added'); load() }
-    else { const data = await res.json().catch(()=>({})); toast.error(data?.error || 'Failed to add person') }
   }
 
-  async function del(id: string) {
-    const res = await fetch(`/api/people/${id}`, { method: 'DELETE', headers: withCSRF() })
-    if (res.ok) { toast.success('Person deleted'); load() }
-    else { const data = await res.json().catch(()=>({})); toast.error(data?.error || 'Failed to delete person') }
+  async function handleDeletePerson(id: string) {
+    const res = await fetch(`/api/people/${id}`, {
+      method: "DELETE",
+      headers: withCSRF(),
+    });
+    if (res.ok) {
+      toast.success("Person deleted");
+      load();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data?.error || "Failed to delete person");
+    }
   }
 
-  async function patch(id: string, patch: Partial<Person>) {
-    const payload: Partial<Person> = { ...patch }
-    for (const k of ['role','title','company','linkedin','twitter','github','website','photo'] as const) {
-      if (payload[k] === '') payload[k] = undefined
+  async function handleToggleCategory(person: Person) {
+    const newCategory =
+      person.category === "organizer" ? "advisor" : "organizer";
+    const res = await fetch(`/api/people/${person.id}`, {
+      method: "PATCH",
+      headers: withCSRF({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ category: newCategory }),
+    });
+    if (res.ok) {
+      toast.success(`Moved to ${newCategory}s`);
+      load();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data?.error || "Failed to update");
     }
-    const validation = PersonInput.partial().safeParse(payload)
-    if (!validation.success) {
-      const msg = 'Validation failed: ' + validation.error.issues.map(i=>`${i.path.join('.')}: ${i.message}`).join(', ')
-      toast.error(msg); return
-    }
-    const res = await fetch(`/api/people/${id}`, { method: 'PATCH', headers: withCSRF({ 'Content-Type': 'application/json' }), body: JSON.stringify(payload) })
-    if (res.ok) { toast.success('Updated'); load() }
-    else { const data = await res.json().catch(()=>({})); toast.error(data?.error || 'Failed to update') }
   }
 
   return (
-      <div className="px-4 lg:px-6 space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-h2 text-foreground">Admin · People</h1>
+    <div className="px-4 lg:px-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">People</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage organizers and advisors
+          </p>
         </div>
-
-  {!loading && (
-          <Card>
-            <CardContent className="card-padding space-y-3">
-              <div className="font-semibold text-foreground">Add Person</div>
-              <form onSubmit={create} className="grid gap-3 md:grid-cols-2">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" required aria-invalid={!!formErrors.name} value={form.name} onChange={e=>setForm({ ...form, name: e.target.value })} placeholder="Name" />
-                  {formErrors.name && <div className="text-xs text-red-400">{formErrors.name}</div>}
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="category">Category</Label>
-                  <Select value={form.category} onValueChange={(v)=>setForm({ ...form, category: v === 'advisor' ? 'advisor' : 'organizer' })}>
-                    <SelectTrigger id="category"><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="organizer">Organizer</SelectItem>
-                      <SelectItem value="advisor">Advisor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="role">Role</Label>
-                  <Input id="role" value={form.role || ''} onChange={e=>setForm({ ...form, role: e.target.value })} placeholder="Role" />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="title">Title</Label>
-                  <Input id="title" value={form.title || ''} onChange={e=>setForm({ ...form, title: e.target.value })} placeholder="Title" />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="company">Company</Label>
-                  <Input id="company" value={form.company || ''} onChange={e=>setForm({ ...form, company: e.target.value })} placeholder="Company" />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="linkedin">LinkedIn URL</Label>
-                  <Input id="linkedin" value={form.linkedin || ''} onChange={e=>setForm({ ...form, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="twitter">Twitter URL</Label>
-                  <Input id="twitter" value={form.twitter || ''} onChange={e=>setForm({ ...form, twitter: e.target.value })} placeholder="https://x.com/..." />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="github">GitHub URL</Label>
-                  <Input id="github" value={form.github || ''} onChange={e=>setForm({ ...form, github: e.target.value })} placeholder="https://github.com/..." />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="website">Website</Label>
-                  <Input id="website" value={form.website || ''} onChange={e=>setForm({ ...form, website: e.target.value })} placeholder="https://example.com" />
-                </div>
-                <div className="grid gap-1.5 md:col-span-2">
-                  <Label htmlFor="photo">Photo URL</Label>
-                  <Input id="photo" value={form.photo || ''} onChange={e=>setForm({ ...form, photo: e.target.value })} placeholder="https://..." />
-                </div>
-                <div className="md:col-span-2">
-                  <Button type="submit" className="px-5">Add</Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {error && <div className="text-sm text-red-400">{error}</div>}
-  {loading && (
-          <div className="grid gap-6 md:grid-cols-2">
-            {[0,1].map((col)=> (
-              <Card key={col}>
-                <CardContent className="card-padding space-y-3">
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-40" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-9 w-full" />
-                      <Skeleton className="h-9 w-full" />
-                      <Skeleton className="h-9 w-full" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="space-y-2">
-                        <Skeleton className="h-5 w-3/4" />
-                        <Skeleton className="h-5 w-1/2" />
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-  {!loading && (
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardContent className="card-padding space-y-3">
-                <div className="text-lg font-semibold text-foreground">Organizers</div>
-                <ul className="space-y-2">
-                  {organizers.map(p => (
-                    <li key={p.id} className="rounded-md border border-border bg-white/5 p-3">
-                      {editingId === p.id ? (
-                        <div className="space-y-3">
-                          <div className="grid gap-2 md:grid-cols-3">
-                            <Input value={editForm?.name || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), name: e.target.value }))} placeholder="Name" />
-                            <Input value={editForm?.role || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), role: e.target.value }))} placeholder="Role" />
-                            <Input value={editForm?.title || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), title: e.target.value }))} placeholder="Title" />
-                            <Input value={editForm?.company || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), company: e.target.value }))} placeholder="Company" />
-                            <Input value={editForm?.linkedin || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), linkedin: e.target.value }))} placeholder="LinkedIn URL" />
-                            <Input value={editForm?.twitter || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), twitter: e.target.value }))} placeholder="Twitter URL" />
-                            <Input value={editForm?.github || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), github: e.target.value }))} placeholder="GitHub URL" />
-                            <Input value={editForm?.website || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), website: e.target.value }))} placeholder="Website" />
-                            <Input value={editForm?.photo || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), photo: e.target.value }))} placeholder="Photo URL" />
-                          </div>
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="outline" size="sm" onClick={cancelEdit}>Cancel</Button>
-                            <Button size="sm" onClick={saveEdit}>Save</Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-semibold text-foreground">{p.name}</div>
-                            <div className="text-xs text-muted-foreground">{[p.role, p.title, p.company].filter(Boolean).join(' • ')}</div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={()=>startEdit(p)}>Edit</Button>
-                            <Button variant="outline" size="sm" onClick={()=>patch(p.id!, { category: 'advisor' })}>Make advisor</Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">Delete</Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete person?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete "{p.name}".
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={()=>del(p.id!)}>Delete</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="card-padding space-y-3">
-                <div className="text-lg font-semibold text-foreground">Advisors</div>
-                <ul className="space-y-2">
-                  {advisors.map(p => (
-                    <li key={p.id} className="rounded-md border border-border bg-white/5 p-3">
-                      {editingId === p.id ? (
-                        <div className="space-y-3">
-                          <div className="grid gap-2 md:grid-cols-3">
-                            <Input value={editForm?.name || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), name: e.target.value }))} placeholder="Name" />
-                            <Input value={editForm?.role || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), role: e.target.value }))} placeholder="Role" />
-                            <Input value={editForm?.title || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), title: e.target.value }))} placeholder="Title" />
-                            <Input value={editForm?.company || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), company: e.target.value }))} placeholder="Company" />
-                            <Input value={editForm?.linkedin || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), linkedin: e.target.value }))} placeholder="LinkedIn URL" />
-                            <Input value={editForm?.twitter || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), twitter: e.target.value }))} placeholder="Twitter URL" />
-                            <Input value={editForm?.github || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), github: e.target.value }))} placeholder="GitHub URL" />
-                            <Input value={editForm?.website || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), website: e.target.value }))} placeholder="Website" />
-                            <Input value={editForm?.photo || ''} onChange={e=>setEditForm(f=>({ ...(f as Person), photo: e.target.value }))} placeholder="Photo URL" />
-                          </div>
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="outline" size="sm" onClick={cancelEdit}>Cancel</Button>
-                            <Button size="sm" onClick={saveEdit}>Save</Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-semibold text-foreground">{p.name}</div>
-                            <div className="text-xs text-muted-foreground">{[p.role, p.title, p.company].filter(Boolean).join(' • ')}</div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={()=>startEdit(p)}>Edit</Button>
-                            <Button variant="outline" size="sm" onClick={()=>patch(p.id!, { category: 'organizer' })}>Make organizer</Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">Delete</Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete person?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete "{p.name}".
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={()=>del(p.id!)}>Delete</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        <Button
+          onClick={() => {
+            setEditingPerson(null);
+            setModalOpen(true);
+          }}
+        >
+          <IconPlus className="size-4" />
+          Add Person
+        </Button>
       </div>
-  )
+
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="rounded-xl border p-5 space-y-4">
+              <div className="flex items-start gap-4">
+                <Skeleton className="size-16 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-4 w-48" />
+                </div>
+              </div>
+              <Skeleton className="h-8 w-full" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tabs */}
+      {!loading && (
+        <Tabs defaultValue="organizers" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="organizers" className="gap-2">
+              <IconUsers className="size-4" />
+              Organizers ({organizers.length})
+            </TabsTrigger>
+            <TabsTrigger value="advisors" className="gap-2">
+              <IconUserStar className="size-4" />
+              Advisors ({advisors.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="organizers" className="space-y-6">
+            {organizers.length === 0 ? (
+              <EmptyState
+                icon={<IconUsers className="size-20" />}
+                title="No organizers yet"
+                description="Add your first organizer to get started"
+                action={{
+                  label: "Add Organizer",
+                  onClick: () => {
+                    setEditingPerson({ name: "", category: "organizer" });
+                    setModalOpen(true);
+                  },
+                }}
+              />
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {organizers.filter(hasId).map((person) => (
+                  <PersonCard
+                    key={person.id}
+                    {...person}
+                    onEdit={() => {
+                      setEditingPerson(person);
+                      setModalOpen(true);
+                    }}
+                    onDelete={() => {
+                      setPersonToDelete(person);
+                      setDeleteDialogOpen(true);
+                    }}
+                    onToggleCategory={() => handleToggleCategory(person)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="advisors" className="space-y-6">
+            {advisors.length === 0 ? (
+              <EmptyState
+                icon={<IconUserStar className="size-20" />}
+                title="No advisors yet"
+                description="Add your first advisor to get started"
+                action={{
+                  label: "Add Advisor",
+                  onClick: () => {
+                    setEditingPerson({ name: "", category: "advisor" });
+                    setModalOpen(true);
+                  },
+                }}
+              />
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {advisors.filter(hasId).map((person) => (
+                  <PersonCard
+                    key={person.id}
+                    {...person}
+                    onEdit={() => {
+                      setEditingPerson(person);
+                      setModalOpen(true);
+                    }}
+                    onDelete={() => {
+                      setPersonToDelete(person);
+                      setDeleteDialogOpen(true);
+                    }}
+                    onToggleCategory={() => handleToggleCategory(person)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {/* Person Modal */}
+      <PersonModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        person={editingPerson}
+        onSave={handleSavePerson}
+        title={editingPerson?.id ? "Edit Person" : "Add Person"}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete person?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete "
+              {personToDelete?.name}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (personToDelete?.id) {
+                  handleDeletePerson(personToDelete.id);
+                  setDeleteDialogOpen(false);
+                  setPersonToDelete(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 }

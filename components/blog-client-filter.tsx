@@ -1,15 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useEffect, useTransition } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/reveal";
@@ -40,14 +34,7 @@ export function BlogClientFilter({ posts }: { posts: PostItem[] }) {
     }, [value, ms]);
     return deb;
   }
-  const debouncedQ = useDebouncedLocal(q, 300);
 
-  // Transition for non-blocking UI updates
-  const [isPending, startTransition] = useTransition();
-
-  // Pagination: initial visible count + load-more
-  const PAGE_SIZE = 9;
-  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
 
   // Share helper (Web Share API fallback to clipboard)
   async function sharePost(slug: string, title: string) {
@@ -111,7 +98,7 @@ export function BlogClientFilter({ posts }: { posts: PostItem[] }) {
             className="mb-10 block overflow-hidden rounded-2xl border border-border bg-card"
           >
             <div className="grid gap-0 md:grid-cols-2">
-              <div className="relative aspect-[16/9] md:aspect-auto">
+              <div className="relative aspect-video md:aspect-auto">
                 <Image
                   src={featured.image || "/cnsl-placeholder.svg"}
                   alt={featured.title}
@@ -212,8 +199,8 @@ export function BlogClientFilter({ posts }: { posts: PostItem[] }) {
                   className="group overflow-hidden bg-card border-border transition-card hover:shadow-card-hover hover:-translate-y-1"
                   aria-labelledby={`post-${post.slug}-title`}
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 opacity-30" />
+                  <div className="relative aspect-4/3 overflow-hidden">
+                    <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent z-10 opacity-30" />
                     <Image
                       src={post.image || "/cnsl-placeholder.svg"}
                       alt={post.title}
